@@ -1,0 +1,113 @@
+import type { ExtractedInsight, Conversation } from "@/types";
+import type { ConversationContext } from "./conversation-context";
+import { formatContextForPrompt } from "./conversation-context";
+import { buildPersonalityBlock } from "./astrologer-personality";
+import type { ChatDecision } from "./chat-decision";
+import { formatInterpretationForPrompt, type MessageInterpretation } from "./message-interpreter";
+
+export function buildChatPrompt(
+  phase: Conversation["phase"],
+  insights: ExtractedInsight[],
+  ctx: ConversationContext,
+  interp: MessageInterpretation,
+  decision: ChatDecision
+): string {
+  const personality = buildPersonalityBlock(
+    ctx.knownSign,
+    phase,
+    ctx.questionsAlreadyAsked,
+    ctx
+  );
+
+  const insightContext =
+    insights.length > 0
+      ? `\nKNOWN: ${insights.slice(-6).map((i) => `${i.category}=${i.value}`).join("; ")}`
+      : "";
+
+  return `${personality}
+
+${formatInterpretationForPrompt(interp)}
+
+DECISION: ${decision.action} — ${decision.focus}
+${decision.askBirthField ? `Ask for ${decision.askBirthField} after answering.` : ""}
+
+${formatContextForPrompt(ctx)}
+PHASE: ${phase}${insightContext}`;
+}
+
+export function buildReportPrompt(
+  conversationInsights: ExtractedInsight[],
+  chartSummary: string,
+  knowledgeContext: string,
+  userName: string
+): string {
+  return `Personalised cosmic report for ${userName}. Plain language. Warm tone like a professional astrologer.
+
+INSIGHTS FROM CHAT:
+${conversationInsights.map((i) => `- ${i.category}: ${i.value}`).join("\n")}
+
+BIRTH CHART:
+${chartSummary}
+
+REFERENCE:
+${knowledgeContext}
+
+Return JSON:
+{
+  "title": "string",
+  "summary": "string (2-3 short paragraphs, simple words)",
+  "cosmicDna": {
+    "archetype": "string",
+    "coreTraits": ["string"],
+    "emotionalPattern": "string",
+    "relationshipStyle": "string",
+    "careerDrive": "string",
+    "hiddenStrength": "string",
+    "soulLesson": "string",
+    "cosmicSignature": "string"
+  },
+  "curiosityCards": [
+    { "type": "hidden_strength", "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string" },
+    { "type": "upcoming_opportunity", "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string" },
+    { "type": "relationship_pattern", "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string" },
+    { "type": "soul_lesson", "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string" },
+    { "type": "ninety_day_outlook", "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string" }
+  ],
+  "sections": [
+    { "title": "string", "content": "string", "confidence": 0.0-1.0, "reasoning": "string", "astrologicalBasis": ["string"] }
+  ]
+}
+
+Use plain-language curiosity in curiosityCards titles. No fear predictions.`;
+}
+
+export function buildInsightExtractionPrompt(
+  userMessage: string,
+  assistantResponse: string
+): string {
+  return `Analyze this exchange.
+
+USER: ${userMessage}
+ASSISTANT: ${assistantResponse}
+
+Return JSON:
+{
+  "insights": [{ "category": "string", "value": "string", "confidence": 0.0-1.0 }],
+  "sentiment": "positive|neutral|negative|mixed",
+  "topicsDiscussed": ["string"]
+}
+
+Categories: personality, emotions, relationships, career, goals, struggles, love, money, birth_date, zodiac_sign, self_worth`;
+}
+
+export function determinePhase(
+  messageCount: number,
+  _birthDetailsRequested: boolean,
+  hasBirthDetails: boolean,
+  decisionPhase?: Conversation["phase"]
+): Conversation["phase"] {
+  if (hasBirthDetails) return "follow_up";
+  if (decisionPhase) return decisionPhase;
+  if (messageCount >= 2) return "exploration";
+  return "rapport";
+}

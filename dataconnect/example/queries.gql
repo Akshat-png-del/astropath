@@ -1,0 +1,36 @@
+mutation InsertUser($email: String!, $displayName: String!, $birthDate: Date!, $birthTime: String!, $birthLocation: String!) @auth(level: PUBLIC) {
+  user_insert(data: {
+    id_expr: "auth.uid",
+    email: $email,
+    displayName: $displayName,
+    birthDate: $birthDate,
+    birthTime: $birthTime,
+    birthLocation: $birthLocation,
+    createdAt_expr: "request.time"
+  })
+}
+
+mutation CreateChatSession($status: String!) @auth(level: USER) {
+  chatSession_insert(data: {
+    userId_expr: "auth.uid",
+    status: $status,
+    createdAt_expr: "request.time"
+  })
+}
+
+mutation CreateMessage($chatSessionId: UUID!, $content: String!, $senderType: String!) @auth(level: USER) {
+  message_insert(data: {
+    chatSessionId: $chatSessionId,
+    content: $content,
+    senderType: $senderType,
+    createdAt_expr: "request.time"
+  })
+}
+
+query GetUserInsights @auth(level: USER) {
+  cosmicInsights(where: {userId: {eq_expr: "auth.uid"}}) {
+    content
+    insightType
+    generatedAt
+  }
+}

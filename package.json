@@ -1,0 +1,41 @@
+{
+  "name": "cosmic-mirror-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "firebase:emulators": "firebase emulators:start",
+    "firebase:deploy": "firebase deploy",
+    "functions:build": "npm run build --prefix functions",
+    "functions:deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "astronomy-engine": "^2.1.19",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "firebase": "^12.15.0",
+    "framer-motion": "^12.41.0",
+    "lucide-react": "^1.21.0",
+    "next": "^16.2.9",
+    "openai": "^6.44.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "firebase-tools": "^14.23.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

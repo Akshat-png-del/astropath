@@ -1,0 +1,43 @@
+type User @table {
+  email: String!
+  displayName: String!
+  birthDate: Date!
+  birthTime: String!
+  birthLocation: String!
+  avatarUrl: String
+  createdAt: Timestamp!
+}
+
+type ChatSession @table {
+  user: User!
+  createdAt: Timestamp!
+  status: String!
+}
+
+type Message @table {
+  chatSession: ChatSession!
+  senderType: String!
+  content: String!
+  createdAt: Timestamp!
+}
+
+type NatalChart @table {
+  user: User!
+  sunSign: String!
+  moonSign: String!
+  risingSign: String!
+  fullChartData: String!
+}
+
+type CosmicInsight @table {
+  user: User!
+  content: String!
+  insightType: String!
+  generatedAt: Timestamp!
+}
+
+type MemoryFragment @table {
+  user: User!
+  summary: String!
+  importanceScore: Int!
+}
