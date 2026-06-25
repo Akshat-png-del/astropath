@@ -203,6 +203,7 @@ body {
 /* Headline accent — glow pulse only (no transparent text fill) */
 .headline-shimmer {
   color: rgba(255, 255, 255, 0.95);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95);
   animation: headline-glow 4.5s ease-in-out infinite;
 }
 

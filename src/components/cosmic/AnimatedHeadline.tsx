@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const HEADLINE_LINES = [
   { words: ["The", "universe", "reveals"], highlight: "universe" },
@@ -13,89 +13,81 @@ function AnimatedWord({
   index,
   highlight = false,
   italic = false,
+  reducedMotion,
 }: {
   word: string;
   index: number;
   highlight?: string | boolean;
   italic?: string | boolean;
+  reducedMotion: boolean;
 }) {
   const isHighlight = highlight === true || highlight === word;
   const isItalic = italic === true || italic === word;
 
   return (
     <motion.span
-      className={`inline-block mr-[0.3em] last:mr-0 ${isItalic ? "italic" : ""} ${
-        isHighlight ? "headline-shimmer" : "text-white/85"
+      className={`${isItalic ? "italic" : ""} ${
+        isHighlight ? "headline-shimmer" : "text-white/90"
       }`}
-      initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.7,
-        delay: 0.15 + index * 0.12,
+        duration: reducedMotion ? 0 : 0.55,
+        delay: reducedMotion ? 0 : 0.1 + index * 0.08,
         ease: [0.25, 0.1, 0.25, 1],
       }}
     >
-      <motion.span
-        animate={{ y: [0, -6, 0] }}
-        transition={{
-          duration: 4 + index * 0.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: index * 0.3,
-        }}
-        className="inline-block will-change-transform"
-      >
-        {word}
-      </motion.span>
+      {word}
     </motion.span>
   );
 }
 
 export function AnimatedHeadline() {
+  const reducedMotion = useReducedMotion();
   let wordIndex = 0;
 
   return (
-    <motion.h1
-      className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.15] sm:leading-[1.2] mb-4 sm:mb-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <h1 className="font-display text-[1.65rem] leading-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light sm:leading-[1.2] mb-4 sm:mb-6 text-white/90 w-full">
       {HEADLINE_LINES.map((line, lineIdx) => (
-        <span key={lineIdx} className="block overflow-visible py-1 mt-0.5 first:mt-0">
-          {line.words.map((word) => {
-            const idx = wordIndex++;
-            return (
-              <AnimatedWord
-                key={`${lineIdx}-${word}-${idx}`}
-                word={word}
-                index={idx}
-                highlight={line.highlight}
-                italic={line.italic}
-              />
-            );
-          })}
+        <span
+          key={lineIdx}
+          className="block py-0.5 sm:py-1 text-center lg:text-left"
+        >
+          <span className="inline leading-snug sm:leading-tight">
+            {line.words.map((word, wordIdx) => {
+              const idx = wordIndex++;
+              return (
+                <span key={`${lineIdx}-${word}-${idx}`}>
+                  <AnimatedWord
+                    word={word}
+                    index={idx}
+                    highlight={line.highlight}
+                    italic={line.italic}
+                    reducedMotion={!!reducedMotion}
+                  />
+                  {wordIdx < line.words.length - 1 ? " " : ""}
+                </span>
+              );
+            })}
+          </span>
         </span>
       ))}
-    </motion.h1>
+    </h1>
   );
 }
 
 export function MovingTagline() {
+  const reducedMotion = useReducedMotion();
+
   return (
-    <motion.div
-      className="relative overflow-hidden py-2 max-w-full"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.2 }}
-    >
+    <div className="relative overflow-hidden py-2 max-w-full w-full">
       <motion.div
-        className="flex gap-12 whitespace-nowrap text-[10px] tracking-[0.4em] uppercase text-white/15"
-        animate={{ x: ["0%", "-50%"] }}
+        className="flex gap-8 sm:gap-12 whitespace-nowrap text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-white/15"
+        animate={reducedMotion ? undefined : { x: ["0%", "-50%"] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       >
         {[...Array(2)].map((_, ri) => (
-          <span key={ri} className="flex gap-12">
+          <span key={ri} className="flex gap-8 sm:gap-12 shrink-0">
             <span>✦ Trust the cosmos</span>
             <span>☽ Know yourself</span>
             <span>✧ Discover your path</span>
@@ -105,6 +97,6 @@ export function MovingTagline() {
           </span>
         ))}
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
