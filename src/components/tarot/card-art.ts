@@ -46,6 +46,6 @@ export type TarotCardSize = "xs" | "sm" | "md" | "lg";
 export const TAROT_SIZE: Record<TarotCardSize, { w: string; rounded: string; numeral: string; title: string; symbol: string }> = {
   xs: { w: "w-full", rounded: "rounded-[6px]", numeral: "text-[7px]", title: "text-[6px]", symbol: "text-sm" },
   sm: { w: "w-20 sm:w-24", rounded: "rounded-lg", numeral: "text-[9px]", title: "text-[10px]", symbol: "text-xl" },
-  md: { w: "w-32", rounded: "rounded-xl", numeral: "text-xs", title: "text-xs", symbol: "text-3xl" },
+  md: { w: "w-20 sm:w-24 md:w-28", rounded: "rounded-xl", numeral: "text-xs", title: "text-xs", symbol: "text-3xl" },
   lg: { w: "w-44 sm:w-52", rounded: "rounded-xl", numeral: "text-sm", title: "text-sm", symbol: "text-5xl" },
 };

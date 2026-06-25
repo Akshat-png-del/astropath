@@ -40,15 +40,15 @@ export function TarotReadingView({ result, onNewReading }: TarotReadingViewProps
             initial={{ opacity: 0, y: 16, rotateY: -40 }}
             animate={{ opacity: 1, y: 0, rotateY: 0 }}
             transition={{ delay: i * 0.1, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="glass-card rounded-xl p-4 sm:p-5 flex gap-4 sm:gap-5 border border-white/[0.06]"
+            className="glass-card rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-3 sm:gap-5 border border-white/[0.06]"
             style={{ perspective: 1000 }}
           >
             <TarotCard
               face="front"
               card={drawn.card}
               reversed={drawn.reversed}
-              size="md"
-              className="!w-[88px] sm:!w-[104px] flex-shrink-0"
+              size="sm"
+              className="mx-auto sm:mx-0 flex-shrink-0"
             />
             <div className="min-w-0 flex-1 pt-1">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#c9a227]/50 mb-2">
@@ -68,7 +68,7 @@ export function TarotReadingView({ result, onNewReading }: TarotReadingViewProps
         This is guidance, not certainty.
       </p>
 
-      <div className="flex justify-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-center gap-3 px-2">
         <CosmicButton variant="secondary" onClick={onNewReading}>
           New reading
         </CosmicButton>

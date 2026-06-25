@@ -13,7 +13,7 @@ export function PricingSection() {
   const { tier } = useBilling();
 
   return (
-    <section className="relative z-10 px-6 py-16 max-w-5xl mx-auto">
+    <section className="relative z-10 px-4 sm:px-6 py-12 sm:py-16 max-w-5xl mx-auto w-full">
       <div className="text-center mb-14">
         <p className="text-[10px] tracking-[0.35em] uppercase text-white/25 mb-4">Freemium · Credits · Plans</p>
         <h1 className="font-display text-3xl sm:text-4xl text-white/85 mb-4">Choose your cosmic path</h1>
@@ -23,7 +23,7 @@ export function PricingSection() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {PLANS.map((plan, i) => {
           const isCurrent = user && tier === plan.id;
           const highlighted = plan.id === "cosmic";

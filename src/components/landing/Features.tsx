@@ -16,7 +16,7 @@ const FEATURES = [
 
 export function FeatureShowcase() {
   return (
-    <section className="relative z-10 px-6 py-28 max-w-7xl mx-auto">
+    <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-28 max-w-7xl mx-auto w-full">
       <FadeIn>
         <h2 className="font-display text-3xl sm:text-4xl text-center text-white/90 mb-3">
           Not a horoscope. A cosmic companion.
@@ -50,7 +50,7 @@ const TESTIMONIALS = [
 
 export function Testimonials() {
   return (
-    <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
+    <section className="relative z-10 px-4 sm:px-6 py-12 sm:py-20 max-w-5xl mx-auto w-full">
       <FadeIn>
         <p className="text-xs tracking-[0.3em] uppercase text-white/25 text-center mb-10">Trusted by cosmic seekers</p>
       </FadeIn>

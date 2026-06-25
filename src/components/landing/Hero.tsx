@@ -3,12 +3,12 @@
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { ZodiacWheel } from "@/components/cosmic/ZodiacWheel";
 import { AnimatedHeadline, MovingTagline } from "@/components/cosmic/AnimatedHeadline";
+import { AppNav } from "@/components/layout/AppNav";
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative z-10 px-6 pt-16 pb-28 max-w-6xl mx-auto">
+    <section className="relative z-10 px-4 sm:px-6 pt-10 sm:pt-16 pb-20 sm:pb-28 max-w-6xl mx-auto w-full overflow-x-hidden">
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="text-center lg:text-left">
           <motion.p
@@ -73,22 +73,4 @@ export function HeroSection() {
   );
 }
 
-export function LandingNav() {
-  return (
-    <nav className="relative z-10 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
-      <Link href="/" className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
-          <span className="text-white/50 text-sm">☽</span>
-        </div>
-        <span className="font-display text-lg text-white/75 tracking-wide">Cosmic Mirror</span>
-      </Link>
-      <div className="flex items-center gap-3">
-        <CosmicButton variant="ghost" size="sm" href="/pricing">Pricing</CosmicButton>
-        <CosmicButton variant="ghost" size="sm" href="/tarot">Tarot</CosmicButton>
-        <CosmicButton variant="ghost" size="sm" href="/account">Account</CosmicButton>
-        <CosmicButton variant="ghost" size="sm" href="/auth">Sign In</CosmicButton>
-        <CosmicButton size="sm" href="/chat">Begin Reading</CosmicButton>
-      </div>
-    </nav>
-  );
-}
+export { AppNav as LandingNav } from "@/components/layout/AppNav";

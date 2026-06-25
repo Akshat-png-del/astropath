@@ -18,7 +18,7 @@ export default function AuthPage() {
 
   return (
     <PageTransition>
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 min-h-[70vh]">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-10 sm:py-12 min-h-dvh max-w-md mx-auto w-full">
         <Link
           href="/"
           className="flex items-center gap-2 text-white/25 hover:text-white/40 text-sm mb-8 self-start max-w-md w-full"

@@ -16,7 +16,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#050505] flex items-center justify-center text-white/30 text-sm">
+      <main className="min-h-dvh bg-[#050505] flex items-center justify-center text-white/30 text-sm">
         Loading account…
       </main>
     );
@@ -24,7 +24,7 @@ export default function AccountPage() {
 
   if (!firebaseReady || !user) {
     return (
-      <main className="min-h-screen bg-[#050505] text-white">
+      <main className="min-h-dvh bg-[#050505] text-white overflow-x-hidden">
         <LandingNav />
         <div className="max-w-md mx-auto px-6 py-24 text-center">
           <h1 className="font-display text-2xl text-white/80 mb-4">Your cosmic account</h1>
@@ -39,9 +39,9 @@ export default function AccountPage() {
   const usage = profile?.usage;
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
+    <main className="min-h-dvh bg-[#050505] text-white overflow-x-hidden">
       <LandingNav />
-      <div className="max-w-lg mx-auto px-6 py-16">
+      <div className="max-w-lg mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <h1 className="font-display text-2xl text-white/85 mb-1">Account</h1>
         <p className="text-sm text-white/35 mb-10">{user.email}</p>
 

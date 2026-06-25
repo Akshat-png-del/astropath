@@ -119,11 +119,11 @@ export default function DashboardPage() {
     <PageTransition>
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-6xl mx-auto w-full">
         <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
-        <div className="flex items-center justify-between mb-10">
-          <Link href="/" className="flex items-center gap-2 text-white/30 hover:text-white/50 text-sm transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
+          <Link href="/" className="flex items-center gap-2 text-white/30 hover:text-white/50 text-sm transition-colors shrink-0">
             <ArrowLeft className="w-4 h-4" /> Home
           </Link>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <CosmicButton variant="ghost" size="sm"><Share2 className="w-3.5 h-3.5" /> Share</CosmicButton>
             <CosmicButton variant="secondary" size="sm" href="/chat">Continue Chat</CosmicButton>
           </div>

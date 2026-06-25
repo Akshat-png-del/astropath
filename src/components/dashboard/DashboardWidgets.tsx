@@ -23,7 +23,7 @@ export function CompatibilityChecker({ locked = false }: { locked?: boolean }) {
       <h3 className="font-display text-lg text-white/80 mb-1">Zodiac Compatibility</h3>
       <p className="text-xs text-white/25 mb-6">Discover cosmic chemistry between signs</p>
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6">
         <select value={sign1} onChange={(e) => setSign1(e.target.value)}
           className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 text-sm text-white/70 focus:outline-none focus:border-white/20">
           {ZODIAC_SIGNS_ORDER.map((s) => <option key={s} value={s} className="bg-[#111]">{SYMBOLS[s]} {s}</option>)}
@@ -67,9 +67,9 @@ export function CosmicStreak({ streak = 1 }: { streak?: number }) {
           <p className="text-xs text-white/25 tracking-wider uppercase">Cosmic Streak</p>
           <p className="font-display text-3xl text-white/80 mt-1">{streak} day{streak !== 1 ? "s" : ""}</p>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-0.5 sm:gap-1 shrink-0">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className={`w-2 h-6 rounded-full ${i < streak ? "bg-white/30" : "bg-white/[0.06]"}`} />
+            <div key={i} className={`w-1.5 sm:w-2 h-5 sm:h-6 rounded-full ${i < streak ? "bg-white/30" : "bg-white/[0.06]"}`} />
           ))}
         </div>
       </div>

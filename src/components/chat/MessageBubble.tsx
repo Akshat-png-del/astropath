@@ -14,7 +14,7 @@ export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps
   if (!content && !isStreaming) return null;
 
   return (
-    <div className={cn("flex gap-3 max-w-[88%]", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
+    <div className={cn("flex gap-2 sm:gap-3 w-full max-w-[min(100%,36rem)] sm:max-w-[85%]", isUser ? "ml-auto flex-row-reverse" : "mr-auto")}>
       <div className={cn(
         "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm",
         isUser ? "bg-white/[0.06] border border-white/10 text-white/40" : "bg-white/[0.08] border border-white/15 text-white/60"
@@ -22,7 +22,7 @@ export function MessageBubble({ role, content, isStreaming }: MessageBubbleProps
         {isUser ? "◈" : "☽"}
       </div>
       <div className={cn(
-        "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+        "rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed min-w-0 break-words",
         isUser ? "bg-white/[0.06] border border-white/[0.08] text-white/80" : "glass-card text-white/60"
       )}>
         <p className="whitespace-pre-wrap">
@@ -52,11 +52,11 @@ export function ThinkingIndicator() {
   }, []);
 
   return (
-    <div className="flex gap-3 mr-auto max-w-[88%]">
+    <div className="flex gap-2 sm:gap-3 mr-auto w-full max-w-[min(100%,36rem)] sm:max-w-[85%]">
       <div className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/15 flex items-center justify-center text-white/60 text-sm shrink-0">
         ☽
       </div>
-      <div className="rounded-2xl px-4 py-3 glass-card border border-white/[0.06] min-w-[180px]">
+      <div className="rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 glass-card border border-white/[0.06] min-w-0 flex-1">
         <div className="flex items-center gap-3">
           <div className="flex gap-1 shrink-0">
             {[0, 1, 2].map((i) => (

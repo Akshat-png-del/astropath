@@ -56,7 +56,7 @@ export function AnimatedHeadline() {
 
   return (
     <motion.h1
-      className="font-display text-5xl sm:text-6xl lg:text-7xl font-light leading-[1.2] mb-6"
+      className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.15] sm:leading-[1.2] mb-4 sm:mb-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -84,7 +84,7 @@ export function AnimatedHeadline() {
 export function MovingTagline() {
   return (
     <motion.div
-      className="relative overflow-hidden py-2"
+      className="relative overflow-hidden py-2 max-w-full"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.2 }}

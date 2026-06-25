@@ -23,7 +23,6 @@ import {
   incrementAnonymousMessageCount,
 } from "@/hooks/useBilling";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
-import { CreditsBadge } from "@/components/billing/CreditsBadge";
 import { Send, RotateCcw, History } from "lucide-react";
 import type { BirthDetailsForm, Conversation, ConversationMessage } from "@/types";
 import { CHAT_GREETING } from "@/lib/ai/chat-constants";
@@ -87,6 +86,28 @@ export function ChatInterface() {
   }, []);
 
   useEffect(() => { scrollToBottom(); }, [messages, isLoading, isThinking, showBirthForm, scrollToBottom]);
+
+  // Keep input visible when mobile keyboard opens
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const syncKeyboardOffset = () => {
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      document.documentElement.style.setProperty("--keyboard-offset", `${offset}px`);
+      if (offset > 0) scrollToBottom();
+    };
+
+    vv.addEventListener("resize", syncKeyboardOffset);
+    vv.addEventListener("scroll", syncKeyboardOffset);
+    syncKeyboardOffset();
+
+    return () => {
+      vv.removeEventListener("resize", syncKeyboardOffset);
+      vv.removeEventListener("scroll", syncKeyboardOffset);
+      document.documentElement.style.removeProperty("--keyboard-offset");
+    };
+  }, [scrollToBottom]);
 
   // Restore saved session or start fresh
   useEffect(() => {
@@ -517,11 +538,8 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="relative flex flex-col h-full">
+    <div className="relative flex flex-col h-full min-h-0">
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
-      <div className="flex justify-end px-4 pt-2">
-        <CreditsBadge />
-      </div>
       <ChatHistoryPanel
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
@@ -531,7 +549,7 @@ export function ChatInterface() {
         userId={user?.uid ?? null}
         cloudHistory={billing.savedHistory}
       />
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
@@ -548,7 +566,7 @@ export function ChatInterface() {
       </div>
 
       {!showBirthForm && (
-        <div className="border-t border-white/[0.04] bg-[#050505]/90 backdrop-blur-2xl p-4">
+        <div className="chat-input-dock shrink-0 border-t border-white/[0.04] bg-[#050505]/90 backdrop-blur-2xl p-3 sm:p-4 safe-bottom">
           <div className="max-w-2xl mx-auto flex items-end gap-2">
             <button
               onClick={() => setHistoryOpen(true)}
@@ -568,6 +586,9 @@ export function ChatInterface() {
               ref={inputRef}
               rows={1}
               placeholder={INPUT_PLACEHOLDER}
+              onFocus={() => {
+                window.setTimeout(scrollToBottom, 300);
+              }}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
               className="flex-1 resize-none rounded-2xl bg-white/[0.03] border border-white/[0.08] px-4 py-3 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all disabled:opacity-40"
@@ -580,7 +601,7 @@ export function ChatInterface() {
               <Send className="w-4 h-4" />
             </button>
           </div>
-          <div className="max-w-2xl mx-auto mt-3 flex flex-wrap gap-2 justify-center">
+          <div className="max-w-2xl mx-auto mt-2 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2 justify-center">
             {CHAT_EXAMPLE_CHIPS.map((chip) => (
               <button
                 key={chip.label}

@@ -60,15 +60,15 @@ export function AuroraBackground() {
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -20 }} aria-hidden="true">
       <div
-        className="absolute -top-1/2 left-1/4 w-[600px] h-[600px] rounded-full animate-aurora"
+        className="absolute -top-1/2 left-1/4 w-full max-w-xl sm:max-w-2xl md:max-w-3xl aspect-square rounded-full animate-aurora"
         style={{ background: "radial-gradient(circle, rgba(192,192,192,0.04) 0%, transparent 70%)" }}
       />
       <div
-        className="absolute top-1/3 -right-1/4 w-[500px] h-[500px] rounded-full animate-aurora"
+        className="absolute top-1/3 -right-1/4 w-full max-w-md sm:max-w-lg md:max-w-xl aspect-square rounded-full animate-aurora"
         style={{ background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)", animationDelay: "4s" }}
       />
       <div
-        className="absolute bottom-0 left-1/3 w-[700px] h-[400px] rounded-full animate-aurora"
+        className="absolute bottom-0 left-1/3 w-full max-w-2xl sm:max-w-3xl md:max-w-4xl aspect-[7/4] rounded-full animate-aurora"
         style={{ background: "radial-gradient(ellipse, rgba(100,100,110,0.05) 0%, transparent 70%)", animationDelay: "8s" }}
       />
     </div>

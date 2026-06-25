@@ -20,10 +20,16 @@ export const metadata: Metadata = {
   description: "The universe reveals more when it knows you.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col cosmic-gradient overflow-x-hidden">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased overflow-x-hidden`}>
+      <body className="min-h-full min-h-dvh flex flex-col cosmic-gradient overflow-x-hidden">
         <Starfield />
         <TarotCardsBackground />
         <AuroraBackground />
