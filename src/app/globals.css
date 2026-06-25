@@ -200,6 +200,20 @@ body {
   }
 }
 
+/* Hero headline — explicit RGBA for mobile Safari (avoids oklab fallback bugs) */
+.hero-headline {
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+  overflow: visible;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.hero-headline-word {
+  color: rgba(255, 255, 255, 0.92);
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+}
+
 /* Headline accent — glow pulse only (no transparent text fill) */
 .headline-shimmer {
   color: rgba(255, 255, 255, 0.95);

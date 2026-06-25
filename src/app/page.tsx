@@ -10,11 +10,13 @@ import { PageTransition } from "@/components/cosmic/FadeIn";
 export default function LandingPage() {
   return (
     <PageTransition>
-      <main className="relative flex-1 overflow-x-hidden">
+      <main className="relative flex-1">
         <div className="glow-orb w-full max-w-lg sm:max-w-xl md:max-w-2xl aspect-square bg-white/[0.02] -top-48 sm:-top-64 left-1/2 -translate-x-1/2 sm:left-1/3 sm:translate-x-0 animate-pulse-soft pointer-events-none -z-10" />
 
-        <LandingNav />
-        <HeroSection />
+        <div className="relative z-10">
+          <LandingNav />
+          <HeroSection />
+        </div>
         <FeatureShowcase />
         <Testimonials />
 
