@@ -18,6 +18,14 @@ export interface ConversationMessage {
   isStreaming?: boolean;
 }
 
+export interface UserUsage {
+  messagesThisPeriod: number;
+  reportsThisPeriod: number;
+  tarotThisPeriod: number;
+  monthlyForecastUnlocked?: boolean;
+  periodStart: Date;
+}
+
 export interface UserProfile {
   uid: string;
   email: string | null;
@@ -31,6 +39,9 @@ export interface UserProfile {
   moonSign?: string;
   risingSign?: string;
   subscriptionTier?: "free" | "cosmic" | "oracle";
+  credits?: number;
+  creditsResetAt?: Date;
+  usage?: UserUsage;
 }
 
 export interface Conversation {
@@ -42,6 +53,7 @@ export interface Conversation {
   insights: ExtractedInsight[];
   topicsCovered: string[];
   birthDetailsRequested: boolean;
+  title?: string;
   createdAt: Date;
   updatedAt: Date;
 }

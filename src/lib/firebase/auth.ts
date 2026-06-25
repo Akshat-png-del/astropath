@@ -8,7 +8,6 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth, isFirebaseConfigured } from "./config";
-import { createUserProfile } from "./firestore";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -52,11 +51,13 @@ async function ensureUserProfile(
   extras?: { email?: string | null; displayName?: string | null; photoURL?: string | null }
 ): Promise<void> {
   try {
+    const { createUserProfile, ensureUserBillingProfile } = await import("./firestore");
     await createUserProfile(user.uid, {
       email: extras?.email ?? user.email,
       displayName: extras?.displayName ?? user.displayName,
       photoURL: extras?.photoURL ?? user.photoURL,
     });
+    await ensureUserBillingProfile(user.uid);
   } catch {
     // Auth succeeded; profile sync is best-effort (e.g. Firestore rules / offline).
   }
@@ -76,6 +77,7 @@ export async function signUpWithEmail(email: string, password: string, displayNa
 
 export async function signInWithEmail(email: string, password: string): Promise<User> {
   const result = await signInWithEmailAndPassword(requireAuth(), email, password);
+  await ensureUserProfile(result.user);
   return result.user;
 }
 

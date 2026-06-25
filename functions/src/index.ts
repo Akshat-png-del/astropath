@@ -189,3 +189,60 @@ export const saveUserMemory = functions.https.onCall(
     return { id: ref.id };
   }
 );
+
+/** Server-only: activate subscription after Stripe checkout (webhook calls this pattern) */
+export const activateSubscription = functions.https.onCall(async (data, context) => {
+  if (!context.auth?.token?.admin) {
+    throw new functions.https.HttpsError("permission-denied", "Admin only");
+  }
+  const { userId, tier, stripeCustomerId, stripeSubscriptionId, currentPeriodEnd } = data as {
+    userId: string;
+    tier: "cosmic" | "oracle";
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    currentPeriodEnd?: string;
+  };
+  if (!userId || !tier) {
+    throw new functions.https.HttpsError("invalid-argument", "userId and tier required");
+  }
+
+  const features =
+    tier === "oracle"
+      ? {
+          unlimitedChat: true,
+          unlimitedTarot: true,
+          monthlyForecast: true,
+          compatibilityDeepDive: true,
+          savedHistory: true,
+          priorityReports: true,
+        }
+      : {
+          unlimitedChat: true,
+          unlimitedTarot: true,
+          monthlyForecast: true,
+          compatibilityDeepDive: true,
+          savedHistory: true,
+          priorityReports: true,
+        };
+
+  await db.collection("subscriptions").doc(userId).set(
+    {
+      userId,
+      tier,
+      status: "active",
+      stripeCustomerId: stripeCustomerId ?? null,
+      stripeSubscriptionId: stripeSubscriptionId ?? null,
+      currentPeriodEnd: currentPeriodEnd ? admin.firestore.Timestamp.fromDate(new Date(currentPeriodEnd)) : null,
+      features,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  await db.collection("users").doc(userId).set(
+    { subscriptionTier: tier, updatedAt: admin.firestore.FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+
+  return { ok: true, tier };
+});

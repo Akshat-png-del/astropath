@@ -15,6 +15,7 @@ export const TOPIC_KEYWORDS = {
     "relationship", "partner", "love", "dating", "marriage", "friend", "family", "breakup",
     "boyfriend", "girlfriend", "husband", "wife", "crush", "cheating", "divorce", "affair",
     "soulmate", "engaged", "fiancé", "fiance", "ex-boyfriend", "ex-girlfriend",
+    "left me", "broke up", "dumped", "walked away", "ended things", "separation",
   ],
   self_worth: [
     "not good enough", "failure", "insecure", "confidence", "self-esteem", "doubt myself",
@@ -22,7 +23,11 @@ export const TOPIC_KEYWORDS = {
   ],
   goals: ["goal", "dream", "future", "purpose", "direction", "ambition", "life path"],
   marriage: ["marriage", "married", "wedding", "husband", "wife", "in-laws", "marry"],
-  health: ["health", "sick", "illness", "pregnancy", "pregnant", "doctor"],
+  health: ["health", "sick", "illness", "pregnancy", "pregnant", "doctor", "wellbeing", "well-being", "mental health"],
+  family: ["family", "parent", "mother", "father", "mom", "dad", "sibling", "brother", "sister", "in-laws", "children", "child", "son", "daughter"],
+  finance: ["finance", "financial", "debt", "loan", "invest", "savings", "broke", "afford", "expenses", "budget", "wealth"],
+  spirituality: ["spiritual", "spirituality", "soul", "karma", "meditation", "universe", "destiny", "faith", "purpose", "awakening"],
+  astrology: ["birth chart", "natal chart", "horoscope", "zodiac", "rising sign", "moon sign", "sun sign", "astrology", "chart reading"],
 } as const;
 
 export type ConversationTopic =
@@ -32,7 +37,11 @@ export type ConversationTopic =
   | "goals"
   | "self_worth"
   | "marriage"
-  | "health";
+  | "health"
+  | "family"
+  | "finance"
+  | "spirituality"
+  | "astrology";
 
 const CONTEXT_TOPIC_MAP: Record<ConversationTopic, readonly string[]> = {
   emotions: [...TOPIC_KEYWORDS.emotions_negative, ...TOPIC_KEYWORDS.emotions_positive, "feeling", "feel", "mood"],
@@ -42,6 +51,10 @@ const CONTEXT_TOPIC_MAP: Record<ConversationTopic, readonly string[]> = {
   self_worth: TOPIC_KEYWORDS.self_worth,
   marriage: TOPIC_KEYWORDS.marriage,
   health: TOPIC_KEYWORDS.health,
+  family: TOPIC_KEYWORDS.family,
+  finance: TOPIC_KEYWORDS.finance,
+  spirituality: TOPIC_KEYWORDS.spirituality,
+  astrology: TOPIC_KEYWORDS.astrology,
 };
 
 function escapeRegex(s: string): string {
@@ -63,7 +76,10 @@ export function scoreTopic(text: string, words: readonly string[]): number {
 }
 
 export function detectConversationTopics(messages: string[]): ConversationTopic[] {
-  const combined = messages.slice(-4).join(" ");
+  const last = messages.at(-1) ?? "";
+  const vagueFollowUp =
+    /\b(future|coming|ahead|expect|outlook|in my way)\b/i.test(last) && messages.length > 1;
+  const combined = vagueFollowUp ? messages.join(" ") : messages.slice(-4).join(" ");
   const scored = (Object.entries(CONTEXT_TOPIC_MAP) as [ConversationTopic, readonly string[]][])
     .map(([topic, words]) => ({ topic, score: scoreTopic(combined, words) }))
     .filter((x) => x.score > 0)
@@ -84,6 +100,11 @@ export function detectReadingTopic(text: string): ReadingTopic {
 }
 
 export function detectPrimaryTopicFromMessages(messages: string[]): ReadingTopic {
-  const recent = messages.slice(-3).join(" ");
-  return detectReadingTopic(recent);
+  const last = messages.at(-1) ?? "";
+  const vagueFuture = /\b(future|coming|ahead|expect|outlook|in my way)\b/i.test(last) &&
+    scoreTopic(last, TOPIC_KEYWORDS.relationship) === 0 &&
+    scoreTopic(last, TOPIC_KEYWORDS.career) === 0;
+
+  const source = vagueFuture ? messages.join(" ") : messages.slice(-3).join(" ");
+  return detectReadingTopic(source);
 }

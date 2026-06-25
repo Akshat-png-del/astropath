@@ -1,82 +1,32 @@
 import { BIRTH_DATE_EXAMPLE, BIRTH_TIME_EXAMPLE, BIRTH_PLACE_EXAMPLE } from "./birth-examples";
-import { ZODIAC_TRAITS } from "@/lib/astrology/zodiac-traits";
 import type { Conversation } from "@/types";
 import type { ConversationContext } from "./conversation-context";
-import { BANNED_WORDS, MAX_REPLY_WORDS } from "./chat-constants";
-import { buildAstrologyTurn } from "./astrology-turn";
+import { BANNED_WORDS, BANNED_PHRASES, MAX_REPLY_WORDS, MIN_REPLY_WORDS } from "./chat-constants";
+import { PREMIUM_VOICE } from "./response-pipeline";
+import type { ConversationMemory } from "./conversation-memory";
 
-export const TRUST_QUESTIONS: Record<Conversation["phase"], string[]> = {
-  rapport: [
-    "What's bothering you most — love, career, money, or something else?",
-    "Is this about one problem or a general reading?",
-  ],
-  exploration: [
-    "How long has this been going on?",
-    "Is one person or situation at the centre of this?",
-  ],
-  birth_details: [
-    `What's your date of birth? (e.g. ${BIRTH_DATE_EXAMPLE} or 12/06/2000)`,
-    `Birth time? Even "${BIRTH_TIME_EXAMPLE}" or "around 8 am" helps — e.g. born in ${BIRTH_PLACE_EXAMPLE}, 6 pm.`,
-  ],
-  report: [],
-  follow_up: [
-    "Want love timing or career direction from your chart?",
-  ],
-};
+export const ASTROLOGER_PERSONALITY = `${PREMIUM_VOICE}
 
-export function getZodiacVoice(sign: string | null): string {
-  if (!sign || !ZODIAC_TRAITS[sign]) {
-    return `Warm astrologer on a call. Simple English. ${BANNED_WORDS}`;
-  }
-  const t = ZODIAC_TRAITS[sign];
-  return `SUN: ${sign} (${t.element}). Traits: ${t.keywords.slice(0, 2).join(", ")}. Strength: ${t.strengths[0]}. Mention sign once if useful.`;
-}
+You are Cosmic Mirror — a premium astrology companion, relationship guide, and trusted confidant.
+Answer the user's latest message directly. Every reply should feel written specifically for them.
 
-export function getTrustQuestion(
-  phase: Conversation["phase"],
-  askedFragments: string[]
-): string | null {
-  const pool = TRUST_QUESTIONS[phase] ?? [];
-  for (const q of pool) {
-    const key = q.slice(0, 20).toLowerCase();
-    if (!askedFragments.some((a) => a.includes(key.slice(0, 10)))) return q;
-  }
-  return null;
-}
+Never expose internal analysis, labels, memory notes, or chain-of-thought.
+Never use scripted openings, sign trait lists, or generic horoscope language.
+Never quote the user's message back to them. Never say "What you shared" or "From a chart perspective".
 
-export const ASTROLOGER_PERSONALITY = `You are Cosmic Mirror — a real astrologer (AstroTalk style: trusted, direct, human).
-
-LENGTH (critical): Max ${MAX_REPLY_WORDS} words. Usually 2–4 short sentences. Never walls of text. Mobile chat, not an essay.
-
-HOW YOU TALK:
-- One line to acknowledge them. One line of chart/sign insight. One hope-filled line so they feel better after reading — real, not fake cheer.
-- Simple words. Like a voice call: "I hear you", "Here's what your chart says", "This phase can shift".
-- Chart and planets only — no tarot.
-
-MOTIVATION (critical):
-- Leave them feeling seen, hopeful, and glad they messaged you.
-- When they share DOB/time/year — confirm the exact date and Sun sign. Never ignore birth details in the same message.
-- No fear predictions. No doom. Offer one concrete reason things can improve.
-
-RULES:
-- Never repeat a question. No medical diagnosis.
-- Ask birth details one at a time when needed — always include a simple example (e.g. 15 March 1995, 6 pm, Mumbai).
+${BANNED_PHRASES}
 ${BANNED_WORDS}`;
 
 export function buildPersonalityBlock(
-  sign: string | null,
-  phase: Conversation["phase"],
-  askedFragments: string[],
-  ctx: ConversationContext
+  _sign: string | null,
+  _phase: Conversation["phase"],
+  _askedFragments: string[],
+  ctx: ConversationContext,
+  _memory: ConversationMemory
 ): string {
-  const trustQ = getTrustQuestion(phase, askedFragments);
-  const { planet, teaser } = buildAstrologyTurn(ctx);
+  const birthNote = !ctx.knownBirthDate
+    ? `Birth details not yet shared — read from conversation. Optional brief DOB ask on turn 1 only (e.g. ${BIRTH_DATE_EXAMPLE}).`
+    : `Birth data available.${!ctx.knownBirthTime ? ` Time unknown — rising approximate (e.g. ${BIRTH_TIME_EXAMPLE}, ${BIRTH_PLACE_EXAMPLE}).` : ""}`;
 
-  return `${ASTROLOGER_PERSONALITY}
-
-${getZodiacVoice(sign)}
-
-Hint (one sentence max if it fits): ${planet}
-Optional close (one short line OR skip): ${teaser}
-${trustQ ? `Optional question (only if needed): "${trustQ}"` : ""}`;
+  return `${ASTROLOGER_PERSONALITY}\n\n${birthNote}`;
 }

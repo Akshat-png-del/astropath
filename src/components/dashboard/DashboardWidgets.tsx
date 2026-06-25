@@ -4,18 +4,21 @@ import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/cosmic/GlassCard";
 import { ZODIAC_SIGNS_ORDER, getCompatibility } from "@/lib/astrology/zodiac-traits";
 import { motion } from "framer-motion";
+import { FeatureGate } from "@/components/billing/FeatureGate";
+import { CosmicButton } from "@/components/cosmic/CosmicButton";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
 
 const SYMBOLS: Record<string, string> = {
   Aries: "♈", Taurus: "♉", Gemini: "♊", Cancer: "♋", Leo: "♌", Virgo: "♍",
   Libra: "♎", Scorpio: "♏", Sagittarius: "♐", Capricorn: "♑", Aquarius: "♒", Pisces: "♓",
 };
 
-export function CompatibilityChecker() {
+export function CompatibilityChecker({ locked = false }: { locked?: boolean }) {
   const [sign1, setSign1] = useState("Aries");
   const [sign2, setSign2] = useState("Libra");
   const result = getCompatibility(sign1, sign2);
 
-  return (
+  const content = (
     <GlassCard hover>
       <h3 className="font-display text-lg text-white/80 mb-1">Zodiac Compatibility</h3>
       <p className="text-xs text-white/25 mb-6">Discover cosmic chemistry between signs</p>
@@ -43,6 +46,16 @@ export function CompatibilityChecker() {
         <p key={s} className="text-xs text-white/30 mb-1">✦ {s}</p>
       ))}
     </GlassCard>
+  );
+
+  return (
+    <FeatureGate
+      locked={locked}
+      title="Compatibility deep-dive"
+      description="Full sign-to-sign analysis is included with Cosmic & Oracle plans."
+    >
+      {content}
+    </FeatureGate>
   );
 }
 
@@ -114,10 +127,14 @@ export function MonthlyForecast({
   sunSign = "Unknown",
   moonSign = "Unknown",
   isPremium = false,
+  canUnlockWithCredits = false,
+  onUnlockWithCredits,
 }: {
   sunSign?: string;
   moonSign?: string;
   isPremium?: boolean;
+  canUnlockWithCredits?: boolean;
+  onUnlockWithCredits?: () => void;
 }) {
   const [data, setData] = useState<{
     month?: string;
@@ -139,38 +156,52 @@ export function MonthlyForecast({
       .catch(() => setData(null));
   }, [sunSign, moonSign, isPremium]);
 
+  const lockedContent = (
+    <GlassCard hover className="relative overflow-hidden">
+      <h3 className="font-display text-lg text-white/80 mb-1">Monthly Cosmic Forecast</h3>
+      <p className="text-xs text-white/25 mb-4">{new Date().toLocaleString("en-US", { month: "long" })} · {sunSign}</p>
+      <div className="py-6 text-center border border-dashed border-white/[0.08] rounded-xl">
+        <p className="text-sm text-white/40 mb-2">Month-ahead guidance</p>
+        <p className="text-xs text-white/25 mb-4 max-w-xs mx-auto">
+          Included with Cosmic & Oracle, or use {CREDIT_COSTS.monthlyForecast} credits on Free.
+        </p>
+        <div className="flex flex-col gap-2 items-center">
+          <CosmicButton size="sm" href="/pricing">View plans</CosmicButton>
+          {canUnlockWithCredits && onUnlockWithCredits && (
+            <button
+              type="button"
+              onClick={onUnlockWithCredits}
+              className="text-[10px] text-white/35 hover:text-white/55 underline-offset-2 hover:underline"
+            >
+              Unlock with {CREDIT_COSTS.monthlyForecast} credits
+            </button>
+          )}
+        </div>
+      </div>
+    </GlassCard>
+  );
+
+  if (!isPremium) {
+    return lockedContent;
+  }
+
   return (
     <GlassCard hover className="relative overflow-hidden">
       <h3 className="font-display text-lg text-white/80 mb-1">Monthly Cosmic Forecast</h3>
       <p className="text-xs text-white/25 mb-4">{data?.month ?? new Date().toLocaleString("en-US", { month: "long" })} · {sunSign}</p>
-
-      {!isPremium ? (
-        <div className="py-6 text-center border border-dashed border-white/[0.08] rounded-xl">
-          <p className="text-sm text-white/40 mb-2">Deeper monthly guidance</p>
-          <p className="text-xs text-white/25 mb-4 max-w-xs mx-auto">
-            Unlock month-ahead themes, focus areas, and affirmations with Cosmic Premium.
-          </p>
-          <span className="text-[10px] tracking-widest uppercase text-white/30 px-3 py-1 rounded-full border border-white/10">
-            Coming soon
-          </span>
+      {data?.theme && <p className="text-sm text-white/55 mb-2">{data.theme}</p>}
+      {data?.overview && <p className="text-xs text-white/35 leading-relaxed mb-4">{data.overview}</p>}
+      {data?.focusAreas && (
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {data.focusAreas.map((a) => (
+            <span key={a} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-white/35">
+              {a}
+            </span>
+          ))}
         </div>
-      ) : (
-        <>
-          {data?.theme && <p className="text-sm text-white/55 mb-2">{data.theme}</p>}
-          {data?.overview && <p className="text-xs text-white/35 leading-relaxed mb-4">{data.overview}</p>}
-          {data?.focusAreas && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {data.focusAreas.map((a) => (
-                <span key={a} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-white/35">
-                  {a}
-                </span>
-              ))}
-            </div>
-          )}
-          {data?.affirmation && (
-            <p className="text-xs text-white/30 italic">&ldquo;{data.affirmation}&rdquo;</p>
-          )}
-        </>
+      )}
+      {data?.affirmation && (
+        <p className="text-xs text-white/30 italic">&ldquo;{data.affirmation}&rdquo;</p>
       )}
     </GlassCard>
   );

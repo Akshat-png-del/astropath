@@ -40,6 +40,7 @@ export interface UserSubscription {
   currentPeriodEnd?: Date;
   features: {
     unlimitedChat: boolean;
+    unlimitedTarot: boolean;
     monthlyForecast: boolean;
     compatibilityDeepDive: boolean;
     savedHistory: boolean;
@@ -69,21 +70,24 @@ export interface StoredMessage extends Omit<ConversationMessage, "timestamp"> {
 
 export const TIER_FEATURES: Record<SubscriptionTier, UserSubscription["features"]> = {
   free: {
-    unlimitedChat: true,
+    unlimitedChat: false,
+    unlimitedTarot: false,
     monthlyForecast: false,
     compatibilityDeepDive: false,
-    savedHistory: true,
+    savedHistory: false,
     priorityReports: false,
   },
   cosmic: {
     unlimitedChat: true,
+    unlimitedTarot: true,
     monthlyForecast: true,
     compatibilityDeepDive: true,
     savedHistory: true,
-    priorityReports: true,
+    priorityReports: false,
   },
   oracle: {
     unlimitedChat: true,
+    unlimitedTarot: true,
     monthlyForecast: true,
     compatibilityDeepDive: true,
     savedHistory: true,

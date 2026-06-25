@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { IraIntro } from "./IraIntro";
 import { TarotSpreadGrid } from "./TarotSpreadGrid";
 import { TarotQuestionStep } from "./TarotQuestionStep";
@@ -10,8 +10,19 @@ import { TarotReadingView } from "./TarotReadingView";
 import type { TarotReadingResult, TarotSpread, TarotStep } from "@/lib/tarot/types";
 import { createShuffledDeck, pickCardsFromIndices, reshuffleDeck, type ShuffledDeck } from "@/lib/tarot/deck";
 import { buildReading } from "@/lib/tarot/interpretation";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  useBilling,
+  incrementAnonymousTarotCount,
+  hasAnonymousTarotTrialLeft,
+} from "@/hooks/useBilling";
+import { consumeCredits } from "@/lib/firebase/credits";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
 
 export function TarotExperience() {
+  const { user } = useAuth();
+  const billing = useBilling();
   const [step, setStep] = useState<TarotStep>("intro");
   const [spread, setSpread] = useState<TarotSpread | null>(null);
   const [question, setQuestion] = useState("");
@@ -19,8 +30,10 @@ export function TarotExperience() {
   const [shuffleCount, setShuffleCount] = useState(0);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [result, setResult] = useState<TarotReadingResult | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<"tarot" | "signin" | "credits">("tarot");
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setStep("intro");
     setSpread(null);
     setQuestion("");
@@ -28,9 +41,19 @@ export function TarotExperience() {
     setShuffleCount(0);
     setSelectedIndices([]);
     setResult(null);
-  }, []);
+  };
 
   const handleSpreadSelect = (s: TarotSpread) => {
+    if (user?.uid && !billing.canTarot) {
+      setUpgradeReason("credits");
+      setUpgradeOpen(true);
+      return;
+    }
+    if (!user?.uid && !hasAnonymousTarotTrialLeft()) {
+      setUpgradeReason("signin");
+      setUpgradeOpen(true);
+      return;
+    }
     setSpread(s);
     setStep("question");
     setDeck(createShuffledDeck());
@@ -52,21 +75,52 @@ export function TarotExperience() {
     });
   };
 
-  const handleReveal = () => {
+  const handleReveal = async () => {
     if (!spread) return;
+
+    if (!user?.uid) {
+      if (!hasAnonymousTarotTrialLeft()) {
+        setUpgradeReason("signin");
+        setUpgradeOpen(true);
+        return;
+      }
+      incrementAnonymousTarotCount();
+    } else {
+      const consumed = await consumeCredits(user.uid, "tarotReading");
+      if (!consumed.ok) {
+        setUpgradeReason("credits");
+        setUpgradeOpen(true);
+        return;
+      }
+    }
+
     const picks = pickCardsFromIndices(deck, selectedIndices);
     const reading = buildReading(spread, question, picks);
     setResult(reading);
     setStep("reading");
   };
 
+  const trialHint = !user
+    ? hasAnonymousTarotTrialLeft()
+      ? "1 free reading without sign-in"
+      : "Sign in for more readings"
+    : billing.unlimitedTarot
+      ? "Unlimited on your plan"
+      : billing.tarotTrialLeft
+        ? "1 free reading this month · then 2 credits each"
+        : `${CREDIT_COSTS.tarotReading} credits per reading`;
+
   return (
     <div className="px-4 py-8 sm:py-12">
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
+
+      {step !== "reading" && (
+        <p className="text-center text-[10px] text-white/25 tracking-wider uppercase mb-6">{trialHint}</p>
+      )}
+
       {step === "intro" && <IraIntro onContinue={() => setStep("spreads")} />}
 
-      {step === "spreads" && (
-        <TarotSpreadGrid onSelect={handleSpreadSelect} />
-      )}
+      {step === "spreads" && <TarotSpreadGrid onSelect={handleSpreadSelect} />}
 
       {step === "question" && spread && (
         <TarotQuestionStep

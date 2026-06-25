@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/stores/useAppStore";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBilling } from "@/hooks/useBilling";
+import { consumeCredits } from "@/lib/firebase/credits";
+import { UpgradeModal, type UpgradeReason } from "@/components/billing/UpgradeModal";
 import { GlassCard } from "@/components/cosmic/GlassCard";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { FadeIn, PageTransition } from "@/components/cosmic/FadeIn";
@@ -27,9 +30,21 @@ import type { CosmicReport, DailyInsight } from "@/types";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const billing = useBilling();
   const { currentReport, setCurrentReport, dailyInsight, setDailyInsight, insights } = useAppStore();
   const [report, setReport] = useState<CosmicReport | null>(currentReport);
   const [loadingDaily, setLoadingDaily] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<UpgradeReason>("forecast");
+
+  const handleUnlockMonthly = async () => {
+    if (!user?.uid || billing.monthlyForecast) return;
+    const result = await consumeCredits(user.uid, "monthlyForecast");
+    if (!result.ok) {
+      setUpgradeReason("forecast");
+      setUpgradeOpen(true);
+    }
+  };
 
   useEffect(() => {
     if (!report && typeof window !== "undefined") {
@@ -103,6 +118,7 @@ export default function DashboardPage() {
   return (
     <PageTransition>
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-6xl mx-auto w-full">
+        <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
         <div className="flex items-center justify-between mb-10">
           <Link href="/" className="flex items-center gap-2 text-white/30 hover:text-white/50 text-sm transition-colors">
             <ArrowLeft className="w-4 h-4" /> Home
@@ -131,7 +147,13 @@ export default function DashboardPage() {
               <GlassCard className="animate-pulse"><div className="h-20 bg-white/[0.03] rounded-xl" /></GlassCard>
             )}
             <WeeklyForecast sunSign={sunSign} moonSign={moonSign} />
-            <MonthlyForecast sunSign={sunSign} moonSign={moonSign} />
+            <MonthlyForecast
+              sunSign={sunSign}
+              moonSign={moonSign}
+              isPremium={billing.monthlyForecast}
+              canUnlockWithCredits={!!user && billing.canUnlockMonthlyWithCredits}
+              onUnlockWithCredits={handleUnlockMonthly}
+            />
           </div>
           <div className="space-y-5">
             <CosmicStreak streak={1} />
@@ -142,7 +164,7 @@ export default function DashboardPage() {
 
         <div className="grid lg:grid-cols-2 gap-5 mb-10">
           <BirthChartViz sunSign={sunSign} moonSign={moonSign} risingSign={risingSign} />
-          <CompatibilityChecker />
+          <CompatibilityChecker locked={!billing.compatibilityDeepDive} />
         </div>
 
         <section className="mb-10">

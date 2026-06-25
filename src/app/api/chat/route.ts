@@ -1,12 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
-import {
-  buildChatPrompt,
-  buildInsightExtractionPrompt,
-  buildReportPrompt,
-  determinePhase,
-} from "@/lib/ai/prompts";
-import { buildConversationContext } from "@/lib/ai/conversation-context";
+import { buildReportPrompt } from "@/lib/ai/prompts";
 import {
   retrieveRelevantKnowledge,
   formatKnowledgeForPrompt,
@@ -17,32 +11,30 @@ import {
   streamFallbackText,
   extractFallbackInsights,
 } from "@/lib/ai/fallback-chat";
-import { interpretMessage } from "@/lib/ai/message-interpreter";
-import { decideChatAction } from "@/lib/ai/chat-decision";
+import { chatLog, chatLogMultiline, logReasoningPipeline } from "@/lib/ai/chat-debug";
+import {
+  runRagPipeline,
+  generateWithQualityGate,
+  checkResponseQuality,
+} from "@/lib/ai/rag";
 import type { Conversation } from "@/types";
+import type { PastConversationSnippet } from "@/lib/ai/rag";
 
 function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY?.trim() });
 }
 
-const MAX_HISTORY = 12;
-
-function trimHistory(messages: { role: string; content: string }[]) {
-  return messages
-    .filter((m) => m.content?.trim())
-    .slice(-MAX_HISTORY);
-}
-
-function fallbackStreamResponse(
+function streamResponse(
   text: string,
-  phase: Conversation["phase"]
+  phase: Conversation["phase"],
+  headers: Record<string, string> = {}
 ): Response {
   return new Response(streamFallbackText(text), {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache",
+      "Cache-Control": "no-cache, no-store",
       "X-Conversation-Phase": phase,
-      "X-Fallback-Mode": "true",
+      ...headers,
     },
   });
 }
@@ -55,10 +47,16 @@ export async function POST(req: NextRequest) {
       phase,
       insights = [],
       birthDetails,
+      memories = [],
+      externalKnowledge,
+      retrievedKnowledge,
+      pastConversations = [],
+      conversationSummaries = [],
       mode = "chat",
       chartSummary,
       userName,
       topics = [],
+      userId,
     } = body;
 
     const useOpenAI = isOpenAIConfigured();
@@ -99,80 +97,165 @@ export async function POST(req: NextRequest) {
       return Response.json(extractFallbackInsights(lastUser.content));
     }
 
-    const chatMessages = trimHistory(messages ?? []);
-    const ctx = buildConversationContext(chatMessages);
-    const hasBirthDetails = !!birthDetails?.dateOfBirth;
-    const interp = interpretMessage(ctx, chatMessages);
-    const decision = decideChatAction(ctx, interp, hasBirthDetails);
+    const rawMessages = messages ?? [];
+    chatLog("USER_MESSAGE", {
+      userMessage: rawMessages.filter((m: { role: string }) => m.role === "user").at(-1)?.content ?? "",
+    });
+    chatLog("HISTORY", { rawCount: rawMessages.length });
+    chatLog("USING_FALLBACK", { usingFallback: !useOpenAI, openAIConfigured: useOpenAI });
 
-    const currentPhase: Conversation["phase"] = determinePhase(
-      ctx.messageCount,
-      false,
-      hasBirthDetails,
-      decision.phase ?? phase
-    );
+    const pipeline = await runRagPipeline({
+      chatMessages: rawMessages,
+      insights,
+      memories,
+      birthDetails,
+      externalKnowledge: externalKnowledge ?? retrievedKnowledge,
+      pastConversations: pastConversations as PastConversationSnippet[],
+      conversationSummaries,
+      phase,
+      userId,
+    });
+
+    chatLogMultiline("FINAL_PROMPT", pipeline.systemPrompt);
+    chatLog("LLM_MESSAGES", {
+      count: pipeline.llmMessages.length,
+      phase: pipeline.phase,
+      retrievalActive: pipeline.retrieval.need.needsRetrieval,
+    });
 
     if (!useOpenAI) {
-      const text = generateFallbackResponse(chatMessages, currentPhase, ctx.messageCount, hasBirthDetails);
-      return fallbackStreamResponse(text, currentPhase);
+      const text = generateFallbackResponse(
+        pipeline.chatMessages,
+        pipeline.phase,
+        pipeline.ctx.messageCount,
+        pipeline.hasBirthDetails,
+        birthDetails,
+        pipeline.retrieval
+      );
+
+      const quality = checkResponseQuality({
+        response: text,
+        ctx: pipeline.ctx,
+        topicSwitched: pipeline.interp.memory.topicSwitched,
+        reasoning: pipeline.reasoning,
+        knownSign: pipeline.ctx.knownSign ?? pipeline.interp.entities.sign,
+      });
+
+      logReasoningPipeline({
+        userIntent: pipeline.interp.chatIntent,
+        emotionalState: pipeline.reasoning.emotions,
+        activeTopic: pipeline.interp.memory.chatIntent,
+        reasoningSummary: pipeline.reasoning.whatUserWants,
+        qualityScore: quality.score,
+      });
+
+      chatLog("MODEL_RESPONSE", {
+        source: "fallback-no-api-key",
+        preview: text.slice(0, 120),
+        qualityPassed: quality.passed,
+        isDuplicate: quality.isDuplicate,
+      });
+
+      return streamResponse(text, pipeline.phase, {
+        "X-Fallback-Mode": "true",
+        "X-Chat-Source": "fallback",
+        "X-Fallback-Reason": "openai-not-configured",
+        "X-Retrieval-Active": String(pipeline.retrieval.need.needsRetrieval),
+        "X-Live-Data": String(pipeline.retrieval.hasLiveCelestialData),
+        "X-Quality-Passed": String(quality.passed),
+        "X-Quality-Score": String(quality.score),
+      });
     }
 
     try {
-      const systemPrompt = buildChatPrompt(
-        currentPhase,
+      const openai = getOpenAI();
+
+      const { text, quality, retried } = await generateWithQualityGate(
+        async (llmMessages, isRetry) => {
+          const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: llmMessages,
+            stream: false,
+            temperature: isRetry ? 0.65 : 0.55,
+            max_tokens: isRetry ? 680 : 620,
+            presence_penalty: 0.3,
+            frequency_penalty: 0.4,
+          });
+          return completion.choices[0]?.message?.content ?? "";
+        },
+        pipeline,
         insights,
-        ctx,
-        interp,
-        decision
+        memories,
+        birthDetails
       );
 
-      const stream = await getOpenAI().chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...chatMessages.map((m: { role: string; content: string }) => ({
-            role: m.role as "user" | "assistant",
-            content: m.content,
-          })),
-        ],
-        stream: true,
-        temperature: 0.7,
-        max_tokens: 280,
-        presence_penalty: 0.3,
-        frequency_penalty: 0.4,
+      chatLog("MODEL_RESPONSE", {
+        source: "openai",
+        length: text.length,
+        preview: text.slice(0, 120),
+        qualityPassed: quality.passed,
+        isDuplicate: quality.isDuplicate,
+        retried,
       });
 
-      const encoder = new TextEncoder();
-      const readable = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of stream) {
-              const text = chunk.choices[0]?.delta?.content ?? "";
-              if (text) controller.enqueue(encoder.encode(text));
-            }
-            controller.close();
-          } catch {
-            controller.close();
-          }
-        },
+      return streamResponse(text, pipeline.phase, {
+        "X-Fallback-Mode": "false",
+        "X-Chat-Source": "openai",
+        "X-Retrieval-Active": String(pipeline.retrieval.need.needsRetrieval),
+        "X-Live-Data": String(pipeline.retrieval.hasLiveCelestialData),
+        "X-Quality-Passed": String(quality.passed),
+        "X-Quality-Retried": String(retried),
+        "X-Quality-Score": String(quality.score),
+      });
+    } catch (openAiErr) {
+      console.error("[chat:openai_error]", openAiErr);
+      chatLog("USING_FALLBACK", { usingFallback: true, reason: "openai_call_failed" });
+
+      const text = generateFallbackResponse(
+        pipeline.chatMessages,
+        pipeline.phase,
+        pipeline.ctx.messageCount,
+        pipeline.hasBirthDetails,
+        birthDetails,
+        pipeline.retrieval
+      );
+
+      const quality = checkResponseQuality({
+        response: text,
+        ctx: pipeline.ctx,
+        topicSwitched: pipeline.interp.memory.topicSwitched,
+        reasoning: pipeline.reasoning,
+        knownSign: pipeline.ctx.knownSign ?? pipeline.interp.entities.sign,
       });
 
-      return new Response(readable, {
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-cache",
-          "X-Conversation-Phase": currentPhase,
-        },
+      logReasoningPipeline({
+        userIntent: pipeline.interp.chatIntent,
+        emotionalState: pipeline.reasoning.emotions,
+        activeTopic: pipeline.interp.memory.chatIntent,
+        reasoningSummary: pipeline.reasoning.whatUserWants,
+        qualityScore: quality.score,
       });
-    } catch {
-      const text = generateFallbackResponse(chatMessages, currentPhase, ctx.messageCount, hasBirthDetails);
-      return fallbackStreamResponse(text, currentPhase);
+
+      chatLog("MODEL_RESPONSE", {
+        source: "fallback-after-error",
+        preview: text.slice(0, 120),
+        qualityPassed: quality.passed,
+      });
+
+      return streamResponse(text, pipeline.phase, {
+        "X-Fallback-Mode": "true",
+        "X-Chat-Source": "fallback",
+        "X-Fallback-Reason": "openai-call-failed",
+        "X-Quality-Passed": String(quality.passed),
+        "X-Quality-Score": String(quality.score),
+      });
     }
   } catch (error) {
     console.error("Chat API error:", error);
-    return fallbackStreamResponse(
+    return streamResponse(
       "I'm here. What's on your mind — love, career, or something else?",
-      "rapport"
+      "rapport",
+      { "X-Fallback-Mode": "true", "X-Chat-Source": "fallback" }
     );
   }
 }

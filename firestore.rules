@@ -16,10 +16,32 @@ service cloud.firestore {
         get(/databases/$(database)/documents/conversations/$(conversationId)).data.userId == request.auth.uid;
     }
 
+    function subscriptionTierUnchanged() {
+      return !('subscriptionTier' in resource.data)
+        || request.resource.data.subscriptionTier == resource.data.subscriptionTier;
+    }
+
+    // Clients may only decrease credits (or set on first write); tier changes are server-only.
+    function creditsOnlyDecrease() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['credits'])
+        || (
+          request.resource.data.credits is int
+          && request.resource.data.credits >= 0
+          && request.resource.data.credits <= resource.data.get('credits', request.resource.data.credits)
+        );
+    }
+
+    function validNewUserBilling() {
+      return request.resource.data.subscriptionTier == 'free'
+        && request.resource.data.credits is int
+        && request.resource.data.credits >= 0
+        && request.resource.data.credits <= 3;
+    }
+
     match /users/{userId} {
       allow read: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow create: if isOwner(userId) && validNewUserBilling();
+      allow update: if isOwner(userId) && subscriptionTierUnchanged() && creditsOnlyDecrease();
     }
 
     match /conversations/{conversationId} {

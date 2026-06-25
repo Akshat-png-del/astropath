@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { listLocalChatHistory, type ChatHistoryItem } from "@/lib/firebase/chat-persistence";
-import { History, X } from "lucide-react";
+import {
+  listLocalChatHistory,
+  listFirebaseChatHistory,
+  type ChatHistoryItem,
+} from "@/lib/firebase/chat-persistence";
+import { History, X, Cloud } from "lucide-react";
 
 interface ChatHistoryPanelProps {
   open: boolean;
   onClose: () => void;
   currentId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, source?: "local" | "cloud") => void;
   onNewChat: () => void;
+  userId?: string | null;
+  cloudHistory?: boolean;
 }
 
 export function ChatHistoryPanel({
@@ -18,12 +24,27 @@ export function ChatHistoryPanel({
   currentId,
   onSelect,
   onNewChat,
+  userId,
+  cloudHistory = false,
 }: ChatHistoryPanelProps) {
   const [items, setItems] = useState<ChatHistoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (open) setItems(listLocalChatHistory());
-  }, [open]);
+    if (!open) return;
+    setLoading(true);
+    const local = listLocalChatHistory();
+    if (userId && cloudHistory) {
+      listFirebaseChatHistory(userId).then((cloud) => {
+        const merged = [...cloud, ...local.filter((l) => !cloud.some((c) => c.id === l.id))];
+        setItems(merged);
+        setLoading(false);
+      });
+    } else {
+      setItems(local);
+      setLoading(false);
+    }
+  }, [open, userId, cloudHistory]);
 
   if (!open) return null;
 
@@ -64,9 +85,11 @@ export function ChatHistoryPanel({
         </button>
 
         <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
-          {items.length === 0 ? (
+          {loading ? (
+            <p className="text-xs text-white/25 px-2 py-4">Loading…</p>
+          ) : items.length === 0 ? (
             <p className="text-xs text-white/25 px-2 py-4 leading-relaxed">
-              Conversations save automatically as you chat. Sign in to sync across devices.
+              Conversations save as you chat. Sign in for cloud sync on Cosmic plan.
             </p>
           ) : (
             items.map((item) => (
@@ -74,7 +97,7 @@ export function ChatHistoryPanel({
                 key={item.id}
                 type="button"
                 onClick={() => {
-                  onSelect(item.id);
+                  onSelect(item.id, item.source);
                   onClose();
                 }}
                 className={`w-full text-left p-3 rounded-xl border transition-colors ${
@@ -83,7 +106,10 @@ export function ChatHistoryPanel({
                     : "border-white/[0.05] hover:bg-white/[0.03]"
                 }`}
               >
-                <p className="text-xs text-white/55 truncate">{item.title}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs text-white/55 truncate flex-1">{item.title}</p>
+                  {item.source === "cloud" && <Cloud className="w-3 h-3 text-white/20 flex-shrink-0" />}
+                </div>
                 <p className="text-[10px] text-white/25 mt-1 truncate">{item.preview}</p>
                 <p className="text-[9px] text-white/15 mt-1">
                   {new Date(item.updatedAt).toLocaleDateString()}

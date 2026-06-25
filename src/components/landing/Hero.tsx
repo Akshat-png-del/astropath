@@ -83,7 +83,9 @@ export function LandingNav() {
         <span className="font-display text-lg text-white/75 tracking-wide">Cosmic Mirror</span>
       </Link>
       <div className="flex items-center gap-3">
+        <CosmicButton variant="ghost" size="sm" href="/pricing">Pricing</CosmicButton>
         <CosmicButton variant="ghost" size="sm" href="/tarot">Tarot</CosmicButton>
+        <CosmicButton variant="ghost" size="sm" href="/account">Account</CosmicButton>
         <CosmicButton variant="ghost" size="sm" href="/auth">Sign In</CosmicButton>
         <CosmicButton size="sm" href="/chat">Begin Reading</CosmicButton>
       </div>

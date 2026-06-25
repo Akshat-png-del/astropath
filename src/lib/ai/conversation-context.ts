@@ -75,16 +75,55 @@ export function buildConversationContext(messages: ChatMessage[]): ConversationC
   };
 }
 
+export interface BirthDetailsPayload {
+  dateOfBirth?: string;
+  timeOfBirth?: string;
+  birthLocation?: string;
+  fullName?: string;
+  sunSign?: string;
+  moonSign?: string;
+  risingSign?: string;
+}
+
+export function applyBirthDetailsToContext(
+  ctx: ConversationContext,
+  birthDetails?: BirthDetailsPayload | null
+): ConversationContext {
+  if (!birthDetails?.dateOfBirth && !birthDetails?.sunSign) return ctx;
+
+  const knownBirthDate = birthDetails.dateOfBirth ?? ctx.knownBirthDate;
+  const knownSign =
+    birthDetails.sunSign ??
+    ctx.knownSign ??
+    (knownBirthDate ? sunSignFromIso(knownBirthDate) : null);
+
+  return {
+    ...ctx,
+    knownBirthDate,
+    knownBirthTime: birthDetails.timeOfBirth ?? ctx.knownBirthTime,
+    knownLocation: birthDetails.birthLocation ?? ctx.knownLocation,
+    knownName: birthDetails.fullName ?? ctx.knownName,
+    knownSign,
+  };
+}
+
 export function formatContextForPrompt(ctx: ConversationContext): string {
   const facts: string[] = [];
   if (ctx.knownName) facts.push(`Name: ${ctx.knownName}`);
   if (ctx.knownBirthDate) facts.push(`DOB: ${ctx.knownBirthDate}`);
-  if (ctx.knownBirthTime) facts.push(`Time: ${ctx.knownBirthTime}`);
-  if (ctx.knownLocation) facts.push(`Place: ${ctx.knownLocation}`);
-  if (ctx.knownSign) facts.push(`Sun: ${ctx.knownSign}`);
-  if (ctx.topicsDiscussed.length) facts.push(`Topics: ${ctx.topicsDiscussed.join(", ")}`);
+  if (ctx.knownBirthTime) facts.push(`Birth time: ${ctx.knownBirthTime}`);
+  if (ctx.knownLocation) facts.push(`Birth place: ${ctx.knownLocation}`);
+  if (ctx.knownSign) facts.push(`Chart: ${ctx.knownSign}`);
+  if (ctx.topicsDiscussed.length) facts.push(`Topics so far: ${ctx.topicsDiscussed.join(", ")}`);
 
-  return [`Msg #${ctx.messageCount}`, ...facts].join("\n");
+  const recent =
+    ctx.userMessages.length > 0
+      ? `Recent user messages:\n${ctx.userMessages.slice(-4).map((m, i) => `- ${m}`).join("\n")}`
+      : "";
+
+  return [`Today: ${ctx.currentDateTime}`, `User message #${ctx.messageCount}`, ...facts, recent]
+    .filter(Boolean)
+    .join("\n");
 }
 
 const BIRTH_FIELD_ORDER = ["birth date", "birth time", "birth place"] as const;

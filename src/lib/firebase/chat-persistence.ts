@@ -17,6 +17,7 @@ export interface ChatHistoryItem {
   title: string;
   updatedAt: string;
   preview: string;
+  source?: "local" | "cloud";
 }
 
 export function saveLocalChat(snapshot: LocalChatSnapshot): void {
@@ -30,6 +31,7 @@ export function saveLocalChat(snapshot: LocalChatSnapshot): void {
     title: snapshot.title ?? deriveTitle(snapshot.messages),
     updatedAt: snapshot.updatedAt,
     preview: lastUserPreview(snapshot.messages),
+    source: "local",
   };
   if (existing >= 0) history[existing] = item;
   else history.unshift(item);
@@ -62,6 +64,51 @@ export function listLocalChatHistory(): ChatHistoryItem[] {
   }
 }
 
+export async function listFirebaseChatHistory(userId: string): Promise<ChatHistoryItem[]> {
+  if (!isFirebaseConfigured() || !userId) return [];
+  try {
+    const { getUserConversations } = await import("./firestore");
+    const convos = await getUserConversations(userId, 20);
+    return convos.map((c) => {
+      const data = c as { id: string; title?: string; updatedAt?: { toDate?: () => Date }; preview?: string };
+      return {
+        id: data.id,
+        title: data.title ?? "Cosmic conversation",
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() ?? new Date().toISOString(),
+        preview: data.preview ?? "Synced reading",
+        source: "cloud" as const,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function loadFirebaseConversation(
+  conversationId: string
+): Promise<LocalChatSnapshot | null> {
+  if (!isFirebaseConfigured()) return null;
+  try {
+    const { getConversationMessages } = await import("./firestore");
+    const messages = await getConversationMessages(conversationId);
+    if (!messages.length) return null;
+    return {
+      conversationId,
+      messages: messages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp.toISOString(),
+      })),
+      phase: "follow_up",
+      insights: [],
+      updatedAt: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function deriveTitle(messages: LocalChatSnapshot["messages"]): string {
   const first = messages.find((m) => m.role === "user")?.content;
   if (!first) return "Cosmic conversation";
@@ -81,7 +128,7 @@ export async function ensureFirebaseConversation(
   if (!isFirebaseConfigured() || !userId) return null;
   try {
     const { createConversation } = await import("./firestore");
-    if (existingId) return existingId;
+    if (existingId && !existingId.startsWith("local")) return existingId;
     return await createConversation(userId);
   } catch {
     return null;
@@ -90,9 +137,10 @@ export async function ensureFirebaseConversation(
 
 export async function persistMessageToFirestore(
   conversationId: string,
-  message: { role: string; content: string; id?: string }
+  message: { role: string; content: string; id?: string },
+  title?: string
 ): Promise<void> {
-  if (!isFirebaseConfigured()) return;
+  if (!isFirebaseConfigured() || conversationId.startsWith("local")) return;
   try {
     const { addMessage, updateConversation } = await import("./firestore");
     await addMessage(conversationId, {
@@ -100,7 +148,9 @@ export async function persistMessageToFirestore(
       content: message.content,
     });
     if (message.role === "user") {
-      await updateConversation(conversationId, {});
+      await updateConversation(conversationId, {
+        ...(title ? { title } as { title: string } : {}),
+      });
     }
   } catch {
     // Best-effort — local storage remains source of truth offline
@@ -112,10 +162,10 @@ export async function trackAnalytics(
   event: string,
   properties?: Record<string, string | number | boolean>
 ): Promise<void> {
-  if (!isFirebaseConfigured()) return;
+  if (!isFirebaseConfigured() || !userId || userId === "anonymous") return;
   try {
     const { logAnalyticsEvent } = await import("./firestore");
-    await logAnalyticsEvent(userId ?? "anonymous", event, properties);
+    await logAnalyticsEvent(userId, event, properties);
   } catch {
     // Non-blocking
   }

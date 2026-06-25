@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatInterface } from "@/components/chat/ChatInterface";
+import { CreditsBadge } from "@/components/billing/CreditsBadge";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { PageTransition } from "@/components/cosmic/FadeIn";
 import { ArrowLeft } from "lucide-react";
@@ -27,6 +28,7 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <CreditsBadge />
             <CosmicButton variant="secondary" size="sm" href="/tarot">Tarot</CosmicButton>
             {currentReport && (
               <CosmicButton variant="secondary" size="sm" href="/dashboard">View Report</CosmicButton>

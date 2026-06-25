@@ -4,9 +4,9 @@ import { BIRTH_DATE_EXAMPLE, BIRTH_TIME_EXAMPLE } from "@/lib/ai/birth-examples"
 /** Plain-language planet hook for sign */
 export function getPlanetHook(sign: string | null, topic: ReadingTopic): string {
   if (!sign) {
-    if (topic === "love") return "Venus rules love — what's happening now often peaks around emotional honesty.";
+    if (topic === "love") return "Venus rules love — honesty and timing matter most right now.";
     if (topic === "career") return "Saturn tests patience in career — delay doesn't mean defeat.";
-    return "The Moon shifts moods daily — what you feel is real, not permanent.";
+    return "The Moon shifts moods — what you feel is real, not permanent.";
   }
   const hooks: Record<string, Record<ReadingTopic, string>> = {
     Aries: { love: "Mars makes you direct in love — say what you mean, gently.", career: "Mars pushes you to lead. Take initiative this week.", general: "Fire sign energy — act, don't overthink." },
@@ -25,24 +25,18 @@ export function getPlanetHook(sign: string | null, topic: ReadingTopic): string 
   return hooks[sign]?.[topic] ?? `${sign} energy is active in your chart this week.`;
 }
 
+/** Optional one-line birth nudge — never meta chart questions */
 export function getCuriosityTeaser(
   sign: string | null,
-  topic: ReadingTopic,
+  _topic: ReadingTopic,
   hasBirthTime: boolean,
-  messageCount = 0
+  _messageCount = 0
 ): string {
-  const teasers: string[] = [];
   if (!sign) {
-    teasers.push(`Share your birth date (e.g. ${BIRTH_DATE_EXAMPLE} or 12/06/2000) — I'll read deeper than Sun sign alone.`);
-  } else if (!hasBirthTime) {
-    teasers.push(`Birth time helps your rising sign — even "${BIRTH_TIME_EXAMPLE}" works.`);
+    return `Share your birth date (e.g. ${BIRTH_DATE_EXAMPLE}) and I'll read your Sun sign properly.`;
   }
-  if (topic === "love") {
-    teasers.push("Want love timing for the next few months?");
-  } else if (topic === "career") {
-    teasers.push("Curious about career timing in your chart?");
-  } else {
-    teasers.push("Should I connect two chart details for you?");
+  if (!hasBirthTime) {
+    return `If you know your birth time (even "${BIRTH_TIME_EXAMPLE}"), I can add your rising sign.`;
   }
-  return teasers[Math.abs(messageCount) % teasers.length];
+  return "";
 }

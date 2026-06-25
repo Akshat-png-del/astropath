@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     import("@/lib/firebase/auth")
       .then(({ onAuthChange }) => {
         if (cancelled) return;
-        unsubscribe = onAuthChange((firebaseUser) => {
+        unsubscribe = onAuthChange(async (firebaseUser) => {
           if (cancelled) return;
           setUser(firebaseUser);
           setStoreUser(
@@ -53,6 +53,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
               : null
           );
+          if (firebaseUser) {
+            try {
+              await firebaseUser.getIdToken();
+              const { createUserProfile, ensureUserBillingProfile } = await import(
+                "@/lib/firebase/firestore"
+              );
+              await createUserProfile(firebaseUser.uid, {
+                email: firebaseUser.email,
+                displayName: firebaseUser.displayName,
+                photoURL: firebaseUser.photoURL,
+              });
+              await ensureUserBillingProfile(firebaseUser.uid);
+            } catch {
+              // Profile sync is best-effort; billing falls back gracefully.
+            }
+          }
           setLoading(false);
         });
       })

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { TarotCard } from "./TarotCard";
 
-const MIN_SHUFFLES = 3;
+const MIN_SHUFFLES = 1;
 
 interface TarotShuffleStepProps {
   shuffleCount: number;
@@ -31,7 +31,7 @@ export function TarotShuffleStep({
         <h2 className="font-display text-2xl text-white/80 mb-2">Shuffling the cards</h2>
         <p className="text-sm text-white/35 max-w-md mx-auto">
           The cards must be shuffled by you before the draw. This step governs how they are arranged.
-          Tap shuffle at least {MIN_SHUFFLES} times with your question in mind.
+          Tap shuffle once with your question in mind, then draw your cards.
         </p>
       </div>
 

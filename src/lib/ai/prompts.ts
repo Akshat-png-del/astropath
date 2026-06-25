@@ -1,38 +1,92 @@
 import type { ExtractedInsight, Conversation } from "@/types";
 import type { ConversationContext } from "./conversation-context";
-import { formatContextForPrompt } from "./conversation-context";
-import { buildPersonalityBlock } from "./astrologer-personality";
 import type { ChatDecision } from "./chat-decision";
-import { formatInterpretationForPrompt, type MessageInterpretation } from "./message-interpreter";
+import type { MessageInterpretation } from "./message-interpreter";
+import type { BirthDetailsPayload } from "./conversation-context";
+import type { ReasoningSummary } from "./reasoning-engine";
+import type { RetrievalContext } from "./retrieval-context";
+import { composeSystemPrompt } from "./prompt-composer";
 
 export function buildChatPrompt(
   phase: Conversation["phase"],
   insights: ExtractedInsight[],
   ctx: ConversationContext,
   interp: MessageInterpretation,
-  decision: ChatDecision
+  decision: ChatDecision,
+  options?: {
+    memories?: string[];
+    knowledgeContext?: string;
+    retrieval?: RetrievalContext;
+    birthDetails?: BirthDetailsPayload | null;
+    memoryBlock?: string;
+    profileBlock?: string;
+    reasoning?: ReasoningSummary;
+    retryHint?: string;
+  }
 ): string {
-  const personality = buildPersonalityBlock(
-    ctx.knownSign,
+  if (!options?.reasoning) {
+    return composeSystemPrompt({
+      phase,
+      ctx,
+      interp,
+      decision,
+      reasoning: {
+        includeFollowUp: false,
+        followUpPrompt: null,
+        orientation: "present",
+        userThemes: [],
+        formattedBlock: "",
+        promptGuidance: "",
+        internalBrief: "",
+        privateReasoning: {
+          intent: "general",
+          emotion: "neutral",
+          topic: "general",
+          userGoal: "",
+          memoryNeeds: [],
+          astroContext: null,
+          knowledgeSources: [],
+          responseStrategy: ["Answer their message directly."],
+          orientation: "present",
+          isFreshContext: false,
+          topicSwitched: false,
+        },
+        reflection: "",
+        interpretation: "",
+        astroInsight: "",
+        futurePossibilities: null,
+        practicalGuidance: "",
+        whatUserWants: ctx.lastUserMessage,
+        priorConversation: "",
+        emotions: "",
+        astrologicalPrinciples: "",
+        practicalAdvice: "",
+        futureGuidance: null,
+      },
+      retrieval: options?.retrieval,
+      memoryBlock: options?.memoryBlock,
+      profileBlock: options?.profileBlock,
+      birthDetails: options?.birthDetails,
+      insights,
+      storedMemories: options?.memories,
+      retryHint: options?.retryHint,
+    });
+  }
+
+  return composeSystemPrompt({
     phase,
-    ctx.questionsAlreadyAsked,
-    ctx
-  );
-
-  const insightContext =
-    insights.length > 0
-      ? `\nKNOWN: ${insights.slice(-6).map((i) => `${i.category}=${i.value}`).join("; ")}`
-      : "";
-
-  return `${personality}
-
-${formatInterpretationForPrompt(interp)}
-
-DECISION: ${decision.action} — ${decision.focus}
-${decision.askBirthField ? `Ask for ${decision.askBirthField} after answering.` : ""}
-
-${formatContextForPrompt(ctx)}
-PHASE: ${phase}${insightContext}`;
+    ctx,
+    interp,
+    decision,
+    reasoning: options.reasoning,
+    retrieval: options?.retrieval,
+    memoryBlock: options?.memoryBlock,
+    profileBlock: options?.profileBlock,
+    birthDetails: options?.birthDetails,
+    insights,
+    storedMemories: options?.memories,
+    retryHint: options?.retryHint,
+  });
 }
 
 export function buildReportPrompt(
@@ -97,7 +151,7 @@ Return JSON:
   "topicsDiscussed": ["string"]
 }
 
-Categories: personality, emotions, relationships, career, goals, struggles, love, money, birth_date, zodiac_sign, self_worth`;
+Categories: personality, emotions, relationships, career, goals, struggles, love, money, birth_date, zodiac_sign, self_worth, family, finance, spirituality, relationship_status, career_status, breakup`;
 }
 
 export function determinePhase(

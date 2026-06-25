@@ -17,6 +17,9 @@ import {
 } from "firebase/firestore";
 import { getFirebaseDb } from "./config";
 import { COLLECTIONS } from "./collections";
+import { buildNewUserBillingFields } from "./credits";
+import { TIER_FEATURES } from "./schemas";
+import type { SubscriptionTier } from "./schemas";
 import type {
   Conversation,
   ConversationMessage,
@@ -34,9 +37,12 @@ export async function createUserProfile(
   uid: string,
   data: Partial<UserProfile>
 ): Promise<void> {
-  await setDoc(
-    doc(db(), COLLECTIONS.USERS, uid),
-    {
+  const ref = doc(db(), COLLECTIONS.USERS, uid);
+  const existing = await getDoc(ref);
+
+  if (!existing.exists()) {
+    const billing = buildNewUserBillingFields();
+    await setDoc(ref, {
       uid,
       email: data.email ?? null,
       displayName: data.displayName ?? null,
@@ -44,16 +50,98 @@ export async function createUserProfile(
       createdAt: serverTimestamp(),
       lastActiveAt: serverTimestamp(),
       onboardingComplete: false,
+      ...billing,
       ...data,
-    },
-    { merge: true }
-  );
+    });
+    return;
+  }
+
+  await updateDoc(ref, {
+    email: data.email ?? existing.data()?.email ?? null,
+    displayName: data.displayName ?? existing.data()?.displayName ?? null,
+    photoURL: data.photoURL ?? existing.data()?.photoURL ?? null,
+    lastActiveAt: serverTimestamp(),
+  });
+}
+
+export async function ensureUserBillingProfile(uid: string): Promise<void> {
+  const ref = doc(db(), COLLECTIONS.USERS, uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+  if (snap.data()?.credits === undefined) {
+    const billing = buildNewUserBillingFields();
+    await updateDoc(ref, { ...billing });
+  }
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   const snap = await getDoc(doc(db(), COLLECTIONS.USERS, uid));
   if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() } as unknown as UserProfile;
+  const data = snap.data();
+  return {
+    uid,
+    email: data.email ?? null,
+    displayName: data.displayName ?? null,
+    photoURL: data.photoURL ?? null,
+    createdAt: data.createdAt?.toDate?.() ?? new Date(),
+    lastActiveAt: data.lastActiveAt?.toDate?.() ?? new Date(),
+    onboardingComplete: data.onboardingComplete ?? false,
+    subscriptionTier: data.subscriptionTier ?? "free",
+    credits: data.credits ?? 0,
+    creditsResetAt: data.creditsResetAt?.toDate?.(),
+    usage: data.usage
+      ? {
+          ...data.usage,
+          periodStart: data.usage.periodStart?.toDate?.() ?? new Date(),
+        }
+      : undefined,
+    sunSign: data.sunSign,
+    moonSign: data.moonSign,
+    risingSign: data.risingSign,
+    cosmicDnaProfile: data.cosmicDnaProfile,
+  };
+}
+
+export function subscribeToUserProfile(
+  uid: string,
+  callback: (profile: UserProfile | null) => void
+): Unsubscribe {
+  return onSnapshot(
+    doc(db(), COLLECTIONS.USERS, uid),
+    (snap) => {
+      if (!snap.exists()) {
+        callback(null);
+        return;
+      }
+      const data = snap.data();
+      callback({
+        uid,
+        email: data.email ?? null,
+        displayName: data.displayName ?? null,
+        photoURL: data.photoURL ?? null,
+        createdAt: data.createdAt?.toDate?.() ?? new Date(),
+        lastActiveAt: data.lastActiveAt?.toDate?.() ?? new Date(),
+        onboardingComplete: data.onboardingComplete ?? false,
+        subscriptionTier: data.subscriptionTier ?? "free",
+        credits: data.credits ?? 0,
+        creditsResetAt: data.creditsResetAt?.toDate?.(),
+        usage: data.usage
+          ? {
+              ...data.usage,
+              periodStart: data.usage.periodStart?.toDate?.() ?? new Date(),
+            }
+          : undefined,
+        sunSign: data.sunSign,
+        moonSign: data.moonSign,
+        risingSign: data.risingSign,
+        cosmicDnaProfile: data.cosmicDnaProfile,
+      });
+    },
+    (error) => {
+      console.warn("[Firestore] profile listener:", error.code ?? error.message);
+      callback(null);
+    }
+  );
 }
 
 export async function updateUserLastActive(uid: string): Promise<void> {
@@ -130,22 +218,59 @@ export async function logAnalyticsEvent(
 }
 
 export async function getUserSubscription(userId: string) {
-  const snap = await getDoc(doc(db(), COLLECTIONS.SUBSCRIPTIONS, userId));
-  if (!snap.exists()) {
+  const { resolveUserTier } = await import("./tier");
+  const resolved = await resolveUserTier(userId);
+  return {
+    userId,
+    tier: resolved.tier,
+    status: resolved.status,
+    features: resolved.features,
+  };
+}
+
+export function subscribeToSubscription(
+  userId: string,
+  callback: (sub: { tier: SubscriptionTier; status: string; features: typeof TIER_FEATURES.free }) => void
+): Unsubscribe {
+  return onSnapshot(
+    doc(db(), COLLECTIONS.SUBSCRIPTIONS, userId),
+    async (snap) => {
+      if (!snap.exists()) {
+        const profile = await getUserProfile(userId);
+        const tier = (profile?.subscriptionTier ?? "free") as SubscriptionTier;
+        callback({ tier, status: "active", features: TIER_FEATURES[tier] });
+        return;
+      }
+      const data = snap.data();
+      const tier = (data.tier ?? "free") as SubscriptionTier;
+      callback({ tier, status: data.status ?? "active", features: TIER_FEATURES[tier] });
+    },
+    async (error) => {
+      console.warn("[Firestore] subscription listener:", error.code ?? error.message);
+      const profile = await getUserProfile(userId);
+      const tier = (profile?.subscriptionTier ?? "free") as SubscriptionTier;
+      callback({ tier, status: "active", features: TIER_FEATURES[tier] });
+    }
+  );
+}
+
+export async function getConversationMessages(conversationId: string): Promise<ConversationMessage[]> {
+  const q = query(
+    collection(db(), COLLECTIONS.MESSAGES),
+    where("conversationId", "==", conversationId),
+    orderBy("timestamp", "asc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data();
     return {
-      userId,
-      tier: "free" as const,
-      status: "active" as const,
-      features: {
-        unlimitedChat: true,
-        monthlyForecast: false,
-        compatibilityDeepDive: false,
-        savedHistory: true,
-        priorityReports: false,
-      },
-    };
-  }
-  return snap.data();
+      id: d.id,
+      conversationId: data.conversationId,
+      role: data.role,
+      content: data.content,
+      timestamp: data.timestamp?.toDate?.() ?? new Date(),
+    } as ConversationMessage;
+  });
 }
 
 export function subscribeToMessages(
@@ -158,23 +283,30 @@ export function subscribeToMessages(
     orderBy("timestamp", "asc")
   );
 
-  return onSnapshot(q, (snapshot) => {
-    const messages = snapshot.docs.map((d) => {
-      const data = d.data();
-      return {
-        id: d.id,
-        conversationId: data.conversationId,
-        role: data.role,
-        content: data.content,
-        timestamp: data.timestamp?.toDate?.() ?? new Date(),
-        extractedInsights: data.extractedInsights,
-        sentiment: data.sentiment,
-        topicsDiscussed: data.topicsDiscussed,
-        isStreaming: data.isStreaming,
-      } as ConversationMessage;
-    });
-    callback(messages);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const messages = snapshot.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          conversationId: data.conversationId,
+          role: data.role,
+          content: data.content,
+          timestamp: data.timestamp?.toDate?.() ?? new Date(),
+          extractedInsights: data.extractedInsights,
+          sentiment: data.sentiment,
+          topicsDiscussed: data.topicsDiscussed,
+          isStreaming: data.isStreaming,
+        } as ConversationMessage;
+      });
+      callback(messages);
+    },
+    (error) => {
+      console.warn("[Firestore] messages listener:", error.code ?? error.message);
+      callback([]);
+    }
+  );
 }
 
 export async function saveBirthProfile(

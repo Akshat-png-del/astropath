@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState } from "react";
-import { MessageBubble, TypingIndicator } from "./MessageBubble";
+import { MessageBubble, ThinkingIndicator } from "./MessageBubble";
 import { BirthDetailsFormComponent } from "./BirthDetailsForm";
 import { ChatHistoryPanel } from "./ChatHistoryPanel";
 import { useAppStore } from "@/stores/useAppStore";
@@ -14,6 +14,16 @@ import {
   persistMessageToFirestore,
   trackAnalytics,
 } from "@/lib/firebase/chat-persistence";
+import { consumeCredits } from "@/lib/firebase/credits";
+import { saveCosmicReport, saveBirthProfile } from "@/lib/firebase/firestore";
+import { ANONYMOUS_MESSAGE_LIMIT } from "@/lib/billing/plans";
+import {
+  useBilling,
+  getAnonymousMessageCount,
+  incrementAnonymousMessageCount,
+} from "@/hooks/useBilling";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
+import { CreditsBadge } from "@/components/billing/CreditsBadge";
 import { Send, RotateCcw, History } from "lucide-react";
 import type { BirthDetailsForm, Conversation, ConversationMessage } from "@/types";
 import { CHAT_GREETING } from "@/lib/ai/chat-constants";
@@ -36,7 +46,11 @@ export function ChatInterface() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const greetingSet = useRef(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<import("@/components/billing/UpgradeModal").UpgradeReason>("credits");
   const { user, firebaseReady } = useAuth();
+  const billing = useBilling();
 
   const store = useAppStore();
   const {
@@ -72,7 +86,7 @@ export function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  useEffect(() => { scrollToBottom(); }, [messages, isLoading, showBirthForm, scrollToBottom]);
+  useEffect(() => { scrollToBottom(); }, [messages, isLoading, isThinking, showBirthForm, scrollToBottom]);
 
   // Restore saved session or start fresh
   useEffect(() => {
@@ -103,32 +117,26 @@ export function ChatInterface() {
 
   // Firebase conversation + analytics when signed in
   useEffect(() => {
-    if (!firebaseReady || !user?.uid) return;
+    if (!firebaseReady || !user?.uid || !billing.savedHistory) return;
     ensureFirebaseConversation(user.uid, conversationId).then((id) => {
       if (id && id !== conversationId) setConversationId(id);
     });
     trackAnalytics(user.uid, "chat_session_open");
-  }, [firebaseReady, user?.uid, conversationId, setConversationId]);
+  }, [firebaseReady, user?.uid, conversationId, setConversationId, billing.savedHistory]);
 
   const streamResponse = async (userContent: string) => {
     const state = useAppStore.getState();
     const assistantId = generateId();
 
     setIsLoading(true);
-    setIsStreaming(true);
+    setIsThinking(true);
+    setIsStreaming(false);
 
-    addMessage({
-      id: assistantId,
-      conversationId: state.conversationId ?? "local",
-      role: "assistant",
-      content: "",
-      timestamp: new Date(),
-      isStreaming: true,
-    });
+    let messageStarted = false;
 
     try {
       const history = useAppStore.getState().messages
-        .filter((m) => m.content && m.id !== assistantId)
+        .filter((m) => m.content?.trim())
         .map((m) => ({ role: m.role, content: m.content }));
 
       const messageCount = history.filter((m) => m.role === "user").length;
@@ -160,16 +168,29 @@ export function ChatInterface() {
       let fullContent = "";
 
       if (reader) {
-        let gotFirstChunk = false;
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          if (!gotFirstChunk) {
-            gotFirstChunk = true;
-            setIsLoading(false);
+          const chunk = decoder.decode(value, { stream: true });
+          if (!chunk) continue;
+
+          if (!messageStarted) {
+            messageStarted = true;
+            setIsThinking(false);
+            setIsStreaming(true);
+            fullContent = chunk;
+            addMessage({
+              id: assistantId,
+              conversationId: state.conversationId ?? "local",
+              role: "assistant",
+              content: fullContent,
+              timestamp: new Date(),
+              isStreaming: true,
+            });
+          } else {
+            fullContent += chunk;
+            updateMessage(assistantId, fullContent, true);
           }
-          fullContent += decoder.decode(value, { stream: true });
-          updateMessage(assistantId, fullContent, true);
         }
       }
 
@@ -177,7 +198,19 @@ export function ChatInterface() {
         fullContent = "I'm here. What's on your mind?";
       }
 
-      updateMessage(assistantId, fullContent, false);
+      if (!messageStarted) {
+        setIsThinking(false);
+        addMessage({
+          id: assistantId,
+          conversationId: state.conversationId ?? "local",
+          role: "assistant",
+          content: fullContent,
+          timestamp: new Date(),
+          isStreaming: false,
+        });
+      } else {
+        updateMessage(assistantId, fullContent, false);
+      }
       setIsStreaming(false);
 
       const updatedPhase = newPhase ?? state.phase;
@@ -210,16 +243,32 @@ export function ChatInterface() {
       persistSnapshot();
       const cid = useAppStore.getState().conversationId;
       if (cid && user?.uid) {
-        persistMessageToFirestore(cid, { role: "user", content: userContent });
-        persistMessageToFirestore(cid, { role: "assistant", content: fullContent });
+        if (billing.savedHistory) {
+          persistMessageToFirestore(cid, { role: "user", content: userContent });
+          persistMessageToFirestore(cid, { role: "assistant", content: fullContent });
+        }
         trackAnalytics(user.uid, "chat_message", { phase: updatedPhase });
       }
     } catch {
       const fallback =
         "I'm still here with you. Something interrupted our connection — please send your message again and I'll respond.";
-      updateMessage(assistantId, fallback, false);
+      setIsThinking(false);
+      if (!messageStarted) {
+        addMessage({
+          id: assistantId,
+          conversationId: state.conversationId ?? "local",
+          role: "assistant",
+          content: fallback,
+          timestamp: new Date(),
+          isStreaming: false,
+        });
+      } else {
+        updateMessage(assistantId, fallback, false);
+      }
+      setIsStreaming(false);
     } finally {
       setIsLoading(false);
+      setIsThinking(false);
       setIsStreaming(false);
     }
   };
@@ -238,6 +287,36 @@ export function ChatInterface() {
       timestamp: new Date(),
     });
 
+    setIsThinking(true);
+    setIsLoading(true);
+
+    if (!user?.uid) {
+      if (getAnonymousMessageCount() >= ANONYMOUS_MESSAGE_LIMIT) {
+        setUpgradeReason("signin");
+        setUpgradeOpen(true);
+        setIsThinking(false);
+        setIsLoading(false);
+        return;
+      }
+      incrementAnonymousMessageCount();
+    } else if (firebaseReady && user?.uid) {
+      if (!billing.canChat) {
+        setUpgradeReason("credits");
+        setUpgradeOpen(true);
+        setIsThinking(false);
+        setIsLoading(false);
+        return;
+      }
+      const result = await consumeCredits(user.uid, "chatMessage");
+      if (!result.ok) {
+        setUpgradeReason("credits");
+        setUpgradeOpen(true);
+        setIsThinking(false);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     await streamResponse(content);
   };
 
@@ -249,7 +328,25 @@ export function ChatInterface() {
     trackAnalytics(user?.uid ?? null, "chat_reset");
   };
 
-  const handleHistorySelect = (id: string) => {
+  const handleHistorySelect = async (id: string, source?: "local" | "cloud") => {
+    if (source === "cloud" && user?.uid) {
+      const { loadFirebaseConversation } = await import("@/lib/firebase/chat-persistence");
+      const remote = await loadFirebaseConversation(id);
+      if (remote) {
+        setConversationId(remote.conversationId);
+        setMessages(
+          remote.messages.map((m) => ({
+            id: m.id,
+            conversationId: remote.conversationId,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            timestamp: new Date(m.timestamp),
+          }))
+        );
+        setPhase(remote.phase as Conversation["phase"]);
+        return;
+      }
+    }
     const local = loadLocalChat();
     if (!local || local.conversationId !== id) return;
     setConversationId(local.conversationId);
@@ -266,6 +363,24 @@ export function ChatInterface() {
   };
 
   const handleBirthSubmit = async (details: BirthDetailsForm) => {
+    if (!user?.uid) {
+      setUpgradeReason("signin");
+      setUpgradeOpen(true);
+      return;
+    }
+    if (!billing.canGenerateReport) {
+      setUpgradeReason("report");
+      setUpgradeOpen(true);
+      return;
+    }
+
+    const creditResult = await consumeCredits(user.uid, "detailedReport");
+    if (!creditResult.ok) {
+      setUpgradeReason("report");
+      setUpgradeOpen(true);
+      return;
+    }
+
     setBirthDetails(details);
     setShowBirthForm(false);
     setIsLoading(true);
@@ -340,6 +455,40 @@ export function ChatInterface() {
       setPhase("follow_up");
       sessionStorage.setItem("cosmicReport", JSON.stringify(fullReport));
 
+      if (user?.uid) {
+        try {
+          const birthProfileId = await saveBirthProfile({
+            userId: user.uid,
+            fullName: details.fullName,
+            dateOfBirth: details.dateOfBirth,
+            timeOfBirth: details.timeOfBirth || "12:00",
+            birthLocation: details.birthLocation,
+            latitude,
+            longitude,
+            timezone: "UTC",
+            sunSign: chart.sunSign,
+            moonSign: chart.moonSign,
+            risingSign: chart.risingSign,
+            chartData: chart.chartData ?? { planets: [], houses: [], aspects: [] },
+          });
+          await saveCosmicReport({
+            userId: user.uid,
+            conversationId: conversationId ?? "local",
+            birthProfileId,
+            title: report.title ?? `${details.fullName}'s Cosmic Mirror`,
+            summary: report.summary,
+            cosmicDna: report.cosmicDna,
+            curiosityCards: fullReport.curiosityCards,
+            sections: report.sections ?? [],
+            sunSign: chart.sunSign,
+            moonSign: chart.moonSign,
+            risingSign: chart.risingSign,
+          });
+        } catch {
+          // Report still available locally
+        }
+      }
+
       addMessage({
         id: generateId(),
         conversationId: conversationId ?? "local",
@@ -369,12 +518,18 @@ export function ChatInterface() {
 
   return (
     <div className="relative flex flex-col h-full">
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
+      <div className="flex justify-end px-4 pt-2">
+        <CreditsBadge />
+      </div>
       <ChatHistoryPanel
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         currentId={conversationId}
         onSelect={handleHistorySelect}
         onNewChat={handleReset}
+        userId={user?.uid ?? null}
+        cloudHistory={billing.savedHistory}
       />
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5">
         {messages.map((msg) => (
@@ -385,7 +540,7 @@ export function ChatInterface() {
             isStreaming={!!msg.isStreaming && isStreaming}
           />
         ))}
-        {isLoading && !isStreaming && <TypingIndicator />}
+        {isThinking && <ThinkingIndicator />}
         {showBirthForm && (
           <BirthDetailsFormComponent onSubmit={handleBirthSubmit} isLoading={isLoading} />
         )}
@@ -414,12 +569,12 @@ export function ChatInterface() {
               rows={1}
               placeholder={INPUT_PLACEHOLDER}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              disabled={isLoading}
+              disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
               className="flex-1 resize-none rounded-2xl bg-white/[0.03] border border-white/[0.08] px-4 py-3 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all disabled:opacity-40"
             />
             <button
               onClick={handleSend}
-              disabled={isLoading}
+              disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
               className="flex-shrink-0 w-10 h-10 rounded-full bg-white text-[#050505] flex items-center justify-center hover:bg-white/90 transition-all disabled:opacity-30"
             >
               <Send className="w-4 h-4" />
@@ -431,7 +586,7 @@ export function ChatInterface() {
                 key={chip.label}
                 type="button"
                 onClick={() => handleExampleChip(chip.text)}
-                disabled={isLoading}
+                disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
                 className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-white/35 hover:text-white/60 hover:border-white/15 transition-colors disabled:opacity-40"
               >
                 {chip.label}
