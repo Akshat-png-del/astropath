@@ -28,7 +28,7 @@ export default function LandingPage() {
           <FadeIn>
             <GlassCard glow className="p-10 sm:p-14">
               <p className="font-display text-2xl sm:text-3xl text-white/80 mb-4">
-                Guidance, not certainty
+                Guidance, Not certainty
               </p>
               <p className="text-white/30 text-sm leading-relaxed max-w-md mx-auto mb-8">
                 We never make fear-based predictions. Every insight includes transparent

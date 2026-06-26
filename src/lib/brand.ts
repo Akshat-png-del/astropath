@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 /** App branding — single source of truth */
-export const APP_NAME = "AstroPath";
+export const APP_NAME = "AstroPath"; // trigger redeploy
 export const APP_DESCRIPTION = "The universe reveals more when it knows you.";
 export const APP_TAGLINE = "Your Personal Astrology Guide";
 
