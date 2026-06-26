@@ -1,8 +1,23 @@
 import { isFirebaseConfigured } from "./config";
 import { conversationTitleFor, titleFromFirstMessage } from "@/lib/brand";
 
-const LOCAL_KEY = "cosmic_mirror_chat";
-const LOCAL_HISTORY_KEY = "cosmic_mirror_chat_history";
+const LEGACY_LOCAL_KEY = "cosmic_mirror_chat";
+const LEGACY_HISTORY_KEY = "cosmic_mirror_chat_history";
+const LOCAL_KEY = "astropath_chat";
+const LOCAL_HISTORY_KEY = "astropath_chat_history";
+
+function migrateLocalStorageKeys(): void {
+  if (typeof window === "undefined") return;
+
+  if (!localStorage.getItem(LOCAL_KEY) && localStorage.getItem(LEGACY_LOCAL_KEY)) {
+    localStorage.setItem(LOCAL_KEY, localStorage.getItem(LEGACY_LOCAL_KEY)!);
+    localStorage.removeItem(LEGACY_LOCAL_KEY);
+  }
+  if (!localStorage.getItem(LOCAL_HISTORY_KEY) && localStorage.getItem(LEGACY_HISTORY_KEY)) {
+    localStorage.setItem(LOCAL_HISTORY_KEY, localStorage.getItem(LEGACY_HISTORY_KEY)!);
+    localStorage.removeItem(LEGACY_HISTORY_KEY);
+  }
+}
 
 export interface LocalChatSnapshot {
   conversationId: string;
@@ -23,6 +38,7 @@ export interface ChatHistoryItem {
 
 export function saveLocalChat(snapshot: LocalChatSnapshot): void {
   if (typeof window === "undefined") return;
+  migrateLocalStorageKeys();
   localStorage.setItem(LOCAL_KEY, JSON.stringify(snapshot));
 
   const history = listLocalChatHistory();
@@ -41,6 +57,7 @@ export function saveLocalChat(snapshot: LocalChatSnapshot): void {
 
 export function loadLocalChat(): LocalChatSnapshot | null {
   if (typeof window === "undefined") return null;
+  migrateLocalStorageKeys();
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     return raw ? JSON.parse(raw) : null;
@@ -57,6 +74,7 @@ export function loadLocalChatById(id: string): LocalChatSnapshot | null {
 
 export function listLocalChatHistory(): ChatHistoryItem[] {
   if (typeof window === "undefined") return [];
+  migrateLocalStorageKeys();
   try {
     const raw = localStorage.getItem(LOCAL_HISTORY_KEY);
     return raw ? JSON.parse(raw) : [];

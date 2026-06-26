@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "cosmic-mirror-ai"
+    "default": "cosmic-mirror-ai",
+    "astropath": "cosmic-mirror-ai"
   },
   "targets": {},
   "etags": {}

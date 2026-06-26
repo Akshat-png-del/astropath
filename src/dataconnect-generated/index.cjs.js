@@ -2,7 +2,7 @@ const { queryRef, executeQuery, validateArgsWithOptions, mutationRef, executeMut
 
 const connectorConfig = {
   connector: 'example',
-  service: 'cosmic-mirror-ai',
+  service: 'astropath',
   location: 'us-east4'
 };
 exports.connectorConfig = connectorConfig;

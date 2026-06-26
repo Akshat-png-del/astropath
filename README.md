@@ -94,9 +94,9 @@ cd functions && npm install && cd ..
 cp .env.example .env.local
 # Fill in your Firebase and OpenAI credentials
 
-# Link Firebase project
+# Link Firebase project (alias `astropath` → backend project in `.firebaserc`)
 firebase login
-firebase use --add
+firebase use astropath
 
 # Start development
 npm run dev
@@ -115,6 +115,17 @@ npm run build
 npm run functions:build
 firebase deploy
 ```
+
+## Repository & Firebase
+
+| Resource | Name |
+|----------|------|
+| Local folder | `~/astropath` |
+| GitHub | [github.com/Akshat-png-del/astropath](https://github.com/Akshat-png-del/astropath) |
+| Firebase CLI alias | `astropath` (see `.firebaserc`) |
+| Firebase project ID | `cosmic-mirror-ai` (immutable — set display name to **AstroPath** in [Firebase Console](https://console.firebase.google.com/)) |
+
+Firebase project IDs cannot be renamed. The global ID `astropath` is already taken by another account. To use a new backend ID (e.g. `astropath-app`), create a project in Firebase Console, update `.env.local`, and run `firebase deploy`.
 
 ## Environment Variables
 
