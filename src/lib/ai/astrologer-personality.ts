@@ -4,10 +4,11 @@ import type { ConversationContext } from "./conversation-context";
 import { BANNED_WORDS, BANNED_PHRASES, MAX_REPLY_WORDS, MIN_REPLY_WORDS } from "./chat-constants";
 import { PREMIUM_VOICE } from "./response-pipeline";
 import type { ConversationMemory } from "./conversation-memory";
+import { APP_NAME } from "@/lib/brand";
 
 export const ASTROLOGER_PERSONALITY = `${PREMIUM_VOICE}
 
-You are Cosmic Mirror — a premium astrology companion, relationship guide, and trusted confidant.
+You are ${APP_NAME} — a premium astrology companion, relationship guide, and trusted confidant.
 Answer the user's latest message directly. Every reply should feel written specifically for them.
 
 Never expose internal analysis, labels, memory notes, or chain-of-thought.

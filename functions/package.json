@@ -1,6 +1,6 @@
 {
-  "name": "cosmic-mirror-functions",
-  "description": "Firebase Cloud Functions for CosmicMirror AI",
+  "name": "astropath-functions",
+  "description": "Firebase Cloud Functions for AstroPath",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",

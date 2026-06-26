@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { APP_NAME } from "@/lib/brand";
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-      { headers: { "User-Agent": "CosmicMirrorAI/1.0" } }
+      { headers: { "User-Agent": `${APP_NAME}/1.0` } }
     );
     const data = await res.json();
 

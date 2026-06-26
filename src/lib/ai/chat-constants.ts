@@ -1,4 +1,6 @@
-export const CHAT_GREETING = `Hi — I'm Cosmic Mirror, your astrologer.
+import { APP_NAME } from "@/lib/brand";
+
+export const CHAT_GREETING = `Hi — I'm ${APP_NAME}, your astrologer.
 
 Ask me anything — love, career, marriage, money, timing. The more you share (including birth date like 15 March 1995, 6 pm, Mumbai), the sharper the reading.
 

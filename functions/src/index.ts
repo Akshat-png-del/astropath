@@ -9,7 +9,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const COSMIC_SYSTEM_PROMPT = `You are CosmicMirror AI — a warm, intuitive cosmic companion. Never make fear-based predictions. Use supportive, reflective language. Build rapport before asking for birth details.`;
+const COSMIC_SYSTEM_PROMPT = `You are AstroPath — a warm, intuitive cosmic companion. Never make fear-based predictions. Use supportive, reflective language. Build rapport before asking for birth details.`;
 
 export const onMessageCreated = functions.firestore
   .document("messages/{messageId}")

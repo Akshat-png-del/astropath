@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { getFirebaseDb } from "./config";
 import { COLLECTIONS } from "./collections";
-import { buildNewUserBillingFields } from "./credits";
+import { buildNewUserBillingFields, syncFreeTierCreditsInFirestore } from "./credits";
 import { TIER_FEATURES } from "./schemas";
 import type { SubscriptionTier } from "./schemas";
 import type {
@@ -72,6 +72,7 @@ export async function ensureUserBillingProfile(uid: string): Promise<void> {
     const billing = buildNewUserBillingFields();
     await updateDoc(ref, { ...billing });
   }
+  await syncFreeTierCreditsInFirestore(uid);
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {

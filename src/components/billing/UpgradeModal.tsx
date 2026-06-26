@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
-import { CREDIT_COSTS, FREE_MONTHLY_CREDITS } from "@/lib/billing/plans";
+import { CREDIT_COSTS, FREE_MONTHLY_CREDITS, FREE_TRIAL_CREDITS } from "@/lib/billing/plans";
 
 export type UpgradeReason =
   | "credits"
@@ -22,7 +22,7 @@ interface UpgradeModalProps {
 const COPY: Record<UpgradeReason, { title: string; body: string }> = {
   credits: {
     title: "You're out of credits",
-    body: `Each chat message uses ${CREDIT_COSTS.chatMessage} credit. Free accounts get ${FREE_MONTHLY_CREDITS} credits monthly. Upgrade for unlimited readings.`,
+    body: `Each chat message uses ${CREDIT_COSTS.chatMessage} credit. Free trial includes ${FREE_TRIAL_CREDITS} credits without sign-in. Signed-in Free accounts get ${FREE_MONTHLY_CREDITS} credits monthly.`,
   },
   report: {
     title: "Unlock your detailed report",
@@ -30,7 +30,7 @@ const COPY: Record<UpgradeReason, { title: string; body: string }> = {
   },
   signin: {
     title: "Sign in to continue",
-    body: `Create a free account for 1 free tarot/month, ${FREE_MONTHLY_CREDITS} credits, saved chart, and cloud history on paid plans.`,
+    body: `Create a free account for ${FREE_MONTHLY_CREDITS} monthly credits, 1 free tarot/month, saved chart, and cloud history on paid plans.`,
   },
   history: {
     title: "Cloud history is a Cosmic feature",

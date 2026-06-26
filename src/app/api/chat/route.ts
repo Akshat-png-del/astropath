@@ -19,6 +19,7 @@ import {
 } from "@/lib/ai/rag";
 import type { Conversation } from "@/types";
 import type { PastConversationSnippet } from "@/lib/ai/rag";
+import { reportTitleFor } from "@/lib/brand";
 
 function getOpenAI() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY?.trim() });
@@ -275,7 +276,7 @@ function generateFallbackReport(
   const emotionalInsight = insights.find((i) => i.category === "emotions");
 
   return {
-    title: `${userName}'s Cosmic Mirror`,
+    title: reportTitleFor(userName),
     summary: `Dear ${userName}, your cosmic blueprint reveals a soul of remarkable depth. With your Sun in ${sun}, Moon in ${moon}, and ${rising} rising, you carry a unique blend of energies that shapes how you move through the world.${emotionalInsight ? ` Your recent emotional landscape — ${emotionalInsight.value.toLowerCase()} — is reflected in your chart's current transits, inviting gentle self-reflection rather than urgency.` : ""} This reading is a mirror for self-discovery, designed to spark curiosity about who you are becoming.`,
     cosmicDna: {
       archetype: `The ${sun} Visionary`,

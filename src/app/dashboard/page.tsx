@@ -9,6 +9,9 @@ import { UpgradeModal, type UpgradeReason } from "@/components/billing/UpgradeMo
 import { GlassCard } from "@/components/cosmic/GlassCard";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { FadeIn, PageTransition } from "@/components/cosmic/FadeIn";
+import { CreditsPanel } from "@/components/dashboard/CreditsPanel";
+import { FreePlanAd } from "@/components/ads/FreePlanAd";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import {
   CosmicDnaDisplay,
   CuriosityCardDisplay,
@@ -50,9 +53,13 @@ export default function DashboardPage() {
     if (!report && typeof window !== "undefined") {
       const stored = sessionStorage.getItem("cosmicReport");
       if (stored) {
-        const parsed = JSON.parse(stored);
-        setReport(parsed);
-        setCurrentReport(parsed);
+        try {
+          const parsed = JSON.parse(stored);
+          setReport(parsed);
+          setCurrentReport(parsed);
+        } catch {
+          // ignore invalid stored report
+        }
       }
     }
   }, [report, setCurrentReport]);
@@ -94,104 +101,127 @@ export default function DashboardPage() {
     text: `${i.category}: ${i.value}`,
   }));
 
-  if (!report) {
-    return (
-      <PageTransition>
-        <main className="flex-1 flex items-center justify-center px-6">
-          <GlassCard glow className="p-10 text-center max-w-md">
-            <p className="text-3xl mb-4 text-white/20">☽</p>
-            <h2 className="font-display text-xl text-white/70 mb-2">Your Cosmic Dashboard</h2>
-            <p className="text-sm text-white/30 mb-6 leading-relaxed">
-              Begin a conversation to unlock your personalized cosmic report, daily guidance, and more.
-            </p>
-            <CosmicButton href="/chat">Begin Your Reading</CosmicButton>
-          </GlassCard>
-        </main>
-      </PageTransition>
-    );
-  }
-
-  const sunSign = report.sunSign ?? report.cosmicDna?.archetype?.replace("The ", "").replace(" Visionary", "").replace(" Pioneer", "") ?? "Unknown";
-  const moonSign = report.moonSign ?? "Unknown";
-  const risingSign = report.risingSign ?? "Unknown";
+  const sunSign =
+    report?.sunSign ??
+    report?.cosmicDna?.archetype?.replace("The ", "").replace(" Visionary", "").replace(" Pioneer", "") ??
+    "Unknown";
+  const moonSign = report?.moonSign ?? "Unknown";
+  const risingSign = report?.risingSign ?? "Unknown";
 
   return (
     <PageTransition>
       <main className="flex-1 px-4 sm:px-6 py-8 max-w-6xl mx-auto w-full">
         <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
-          <Link href="/" className="flex items-center gap-2 text-white/30 hover:text-white/50 text-sm transition-colors shrink-0">
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white/30 hover:text-white/50 text-sm transition-colors shrink-0"
+          >
             <ArrowLeft className="w-4 h-4" /> Home
           </Link>
           <div className="flex flex-wrap gap-2">
-            <CosmicButton variant="ghost" size="sm"><Share2 className="w-3.5 h-3.5" /> Share</CosmicButton>
-            <CosmicButton variant="secondary" size="sm" href="/chat">Continue Chat</CosmicButton>
+            <CosmicButton variant="secondary" size="sm" href="/chat">
+              Continue Chat
+            </CosmicButton>
+            {report && (
+              <CosmicButton variant="ghost" size="sm">
+                <Share2 className="w-3.5 h-3.5" /> Share
+              </CosmicButton>
+            )}
           </div>
         </div>
 
         <FadeIn>
-          <h1 className="font-display text-3xl sm:text-4xl text-gradient mb-2">{report.title}</h1>
-          <p className="text-white/35 text-sm leading-relaxed max-w-2xl mb-10">{report.summary}</p>
+          <h1 className="font-display text-3xl sm:text-4xl text-gradient mb-2">Your Cosmic Dashboard</h1>
+          <p className="text-white/35 text-sm leading-relaxed max-w-2xl mb-8">
+            {billing.isAnonymousTrial
+              ? "Free trial — track your credits and message history here. No sign-in required."
+              : "Track credits, readings, and your cosmic journey."}
+          </p>
         </FadeIn>
 
-        <div className="grid lg:grid-cols-3 gap-5 mb-8">
-          <div className="lg:col-span-2 space-y-5">
-            {dailyInsight && !loadingDaily && (
-              <DailyCosmicCard
-                guidance={dailyInsight.guidance}
-                affirmation={dailyInsight.affirmation}
-                focusArea={dailyInsight.focusArea}
-              />
-            )}
-            {loadingDaily && (
-              <GlassCard className="animate-pulse"><div className="h-20 bg-white/[0.03] rounded-xl" /></GlassCard>
-            )}
-            <WeeklyForecast sunSign={sunSign} moonSign={moonSign} />
-            <MonthlyForecast
-              sunSign={sunSign}
-              moonSign={moonSign}
-              isPremium={billing.monthlyForecast}
-              canUnlockWithCredits={!!user && billing.canUnlockMonthlyWithCredits}
-              onUnlockWithCredits={handleUnlockMonthly}
-            />
-          </div>
-          <div className="space-y-5">
-            <CosmicStreak streak={1} />
-            <ProgressTimeline milestones={milestones} />
-            <JournalEntry entries={journalEntries} />
-          </div>
-        </div>
+        <CreditsPanel />
 
-        <div className="grid lg:grid-cols-2 gap-5 mb-10">
-          <BirthChartViz sunSign={sunSign} moonSign={moonSign} risingSign={risingSign} />
-          <CompatibilityChecker locked={!billing.compatibilityDeepDive} />
-        </div>
+        <FreePlanAd className="mb-8" />
 
-        <section className="mb-10">
-          <CosmicDnaDisplay dna={report.cosmicDna} />
-        </section>
+        {!report ? (
+          <GlassCard className="text-center py-10 px-6 mb-10">
+            <p className="text-3xl mb-4 text-white/20">☽</p>
+            <h2 className="font-display text-xl text-white/70 mb-2">Your cosmic report awaits</h2>
+            <p className="text-sm text-white/30 mb-6 leading-relaxed max-w-md mx-auto">
+              Use your trial credits in chat. After you share birth details and generate a report, your full
+              dashboard unlocks here.
+            </p>
+            <CosmicButton href="/chat">Begin Your Reading</CosmicButton>
+          </GlassCard>
+        ) : (
+          <>
+            <FadeIn>
+              <h2 className="font-display text-2xl sm:text-3xl text-white/80 mb-2">{report.title}</h2>
+              <p className="text-white/35 text-sm leading-relaxed max-w-2xl mb-10">{report.summary}</p>
+            </FadeIn>
 
-        <section className="mb-10">
-          <h2 className="font-display text-xl text-white/70 mb-5">Curiosity Cards</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {report.curiosityCards.map((card) => (
-              <CuriosityCardDisplay key={card.id} card={card} />
-            ))}
-          </div>
-        </section>
+            <div className="grid lg:grid-cols-3 gap-5 mb-8">
+              <div className="lg:col-span-2 space-y-5">
+                {dailyInsight && !loadingDaily && (
+                  <DailyCosmicCard
+                    guidance={dailyInsight.guidance}
+                    affirmation={dailyInsight.affirmation}
+                    focusArea={dailyInsight.focusArea}
+                  />
+                )}
+                {loadingDaily && (
+                  <GlassCard className="animate-pulse">
+                    <div className="h-20 bg-white/[0.03] rounded-xl" />
+                  </GlassCard>
+                )}
+                <WeeklyForecast sunSign={sunSign} moonSign={moonSign} />
+                <MonthlyForecast
+                  sunSign={sunSign}
+                  moonSign={moonSign}
+                  isPremium={billing.monthlyForecast}
+                  canUnlockWithCredits={!!user && billing.canUnlockMonthlyWithCredits}
+                  onUnlockWithCredits={handleUnlockMonthly}
+                />
+              </div>
+              <div className="space-y-5">
+                <CosmicStreak streak={1} />
+                <ProgressTimeline milestones={milestones} />
+                <JournalEntry entries={journalEntries} />
+              </div>
+            </div>
 
-        <section>
-          <h2 className="font-display text-xl text-white/70 mb-5">Deep Insights</h2>
-          <div className="space-y-4">
-            {report.sections.map((section, i) => (
-              <ReportSectionDisplay key={i} section={section} />
-            ))}
-          </div>
-        </section>
+            <div className="grid lg:grid-cols-2 gap-5 mb-10">
+              <BirthChartViz sunSign={sunSign} moonSign={moonSign} risingSign={risingSign} />
+              <CompatibilityChecker locked={!billing.compatibilityDeepDive} />
+            </div>
 
-        <footer className="mt-16 pt-8 border-t border-white/[0.04] text-center">
-          <p className="text-[10px] text-white/15 tracking-[0.35em] uppercase">made by the universe itself</p>
-        </footer>
+            <section className="mb-10">
+              <CosmicDnaDisplay dna={report.cosmicDna} />
+            </section>
+
+            <section className="mb-10">
+              <h2 className="font-display text-xl text-white/70 mb-5">Curiosity Cards</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {report.curiosityCards.map((card) => (
+                  <CuriosityCardDisplay key={card.id} card={card} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-display text-xl text-white/70 mb-5">Deep Insights</h2>
+              <div className="space-y-4">
+                {report.sections.map((section, i) => (
+                  <ReportSectionDisplay key={i} section={section} />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+
+        <SiteFooter className="mt-16" />
       </main>
     </PageTransition>
   );

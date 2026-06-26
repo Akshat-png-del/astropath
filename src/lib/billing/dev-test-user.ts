@@ -1,6 +1,9 @@
 /** Dev-only testing helpers — never active in production builds. */
 
-export const DEV_TEST_CREDITS = 100;
+import { FREE_TRIAL_CREDITS } from "./credits-constants";
+
+/** Credits written by dev reset API (matches free trial allocation) */
+export const DEV_TEST_CREDITS = FREE_TRIAL_CREDITS;
 
 export function isDevEnvironment(): boolean {
   return process.env.NODE_ENV === "development";

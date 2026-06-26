@@ -9,6 +9,7 @@ import { CREDIT_COSTS, getPlan, PLANS } from "@/lib/billing/plans";
 import { PricingSection } from "@/components/billing/PricingSection";
 import { DevTestingPanel } from "@/components/billing/DevTestingPanel";
 import { logOut } from "@/lib/firebase/auth";
+import { APP_NAME } from "@/lib/brand";
 
 export default function AccountPage() {
   const { user, loading, firebaseReady } = useAuth();
@@ -27,7 +28,7 @@ export default function AccountPage() {
       <main className="min-h-dvh bg-[#050505] text-white overflow-x-hidden">
         <LandingNav />
         <div className="max-w-md mx-auto px-6 py-24 text-center">
-          <h1 className="font-display text-2xl text-white/80 mb-4">Your cosmic account</h1>
+          <h1 className="font-display text-2xl text-white/80 mb-4">Your {APP_NAME} account</h1>
           <p className="text-sm text-white/35 mb-8">Sign in to manage credits, chat history, and subscriptions.</p>
           <CosmicButton href="/auth">Sign in</CosmicButton>
         </div>

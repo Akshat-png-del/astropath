@@ -1,4 +1,4 @@
-# CosmicMirror AI
+# AstroPath
 
 A full-stack AI-powered astrology platform that feels like a highly personalized AI astrologer. Users engage in a natural conversation before receiving deeply personalized cosmic guidance.
 
@@ -28,7 +28,7 @@ A full-stack AI-powered astrology platform that feels like a highly personalized
 ## Project Structure
 
 ```
-cosmic-mirror-ai/
+astropath/
 ├── src/
 │   ├── app/                    # Next.js App Router pages & API routes
 │   │   ├── api/chat/           # Streaming AI chat + report generation
@@ -86,7 +86,7 @@ cosmic-mirror-ai/
 
 ```bash
 # Clone and install
-cd cosmic-mirror-ai
+cd astropath
 npm install
 cd functions && npm install && cd ..
 

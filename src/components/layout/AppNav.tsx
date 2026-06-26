@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { cn } from "@/lib/utils";
+import { APP_NAME } from "@/lib/brand";
 
 const NAV_LINKS = [
   { href: "/pricing", label: "Pricing" },
@@ -25,7 +26,7 @@ export function AppNav() {
             <span className="text-white/50 text-sm">☽</span>
           </div>
           <span className="font-display text-base sm:text-lg text-white/75 tracking-wide truncate">
-            Cosmic Mirror
+            {APP_NAME}
           </span>
         </Link>
 

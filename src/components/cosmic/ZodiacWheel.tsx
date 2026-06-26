@@ -2,14 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ZODIAC_SIGNS_ORDER, ZODIAC_TRAITS } from "@/lib/astrology/zodiac-traits";
+import { ZodiacSignImage } from "@/components/cosmic/ZodiacSignImage";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
-const SYMBOLS: Record<string, string> = {
-  Aries: "♈", Taurus: "♉", Gemini: "♊", Cancer: "♋",
-  Leo: "♌", Virgo: "♍", Libra: "♎", Scorpio: "♏",
-  Sagittarius: "♐", Capricorn: "♑", Aquarius: "♒", Pisces: "♓",
-};
 
 const WHEEL_DIM = 340;
 const WHEEL_RADIUS = WHEEL_DIM / 2 - 36;
@@ -130,9 +125,9 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                   <motion.span
                     animate={{ y: isHighlighted ? -1 : 0 }}
                     transition={{ duration: 0.35, ease: fadeEase }}
-                    className="leading-none"
+                    className="leading-none flex items-center justify-center"
                   >
-                    {SYMBOLS[sign]}
+                    <ZodiacSignImage sign={sign} size={26} />
                   </motion.span>
                 </motion.button>
 
@@ -171,13 +166,13 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                 transition={{ duration: 0.4, ease: fadeEase }}
                 className="text-center"
               >
-                <motion.p
-                  className="text-3xl"
+                <motion.div
                   animate={{ y: [0, -2, 0] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="flex justify-center"
                 >
-                  {SYMBOLS[displaySign]}
-                </motion.p>
+                  <ZodiacSignImage sign={displaySign} size={48} />
+                </motion.div>
                 <p className="text-[10px] text-white/35 mt-1 tracking-[0.25em] uppercase">
                   {displaySign}
                 </p>
@@ -238,14 +233,14 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                   transition={{ delay: 0.06, ...popSpring }}
                   className="text-center mb-6"
                 >
-                  <motion.span
+                  <motion.div
                     initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.08, ...smoothSpring }}
-                    className="text-6xl block mb-2"
+                    className="flex justify-center mb-2"
                   >
-                    {SYMBOLS[activeSign]}
-                  </motion.span>
+                    <ZodiacSignImage sign={activeSign} size={72} priority />
+                  </motion.div>
                   <h3 className="font-display text-2xl text-white/90">{activeSign}</h3>
                   <p className="text-xs text-white/35 tracking-[0.2em] uppercase mt-1">
                     {traits.archetype} · {traits.element} · {traits.modality}

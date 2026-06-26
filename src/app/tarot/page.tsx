@@ -5,6 +5,7 @@ import { PageTransition } from "@/components/cosmic/FadeIn";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { CreditsBadge } from "@/components/billing/CreditsBadge";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { FreePlanAd } from "@/components/ads/FreePlanAd";
 
 export default function TarotPage() {
   const actions = (
@@ -31,6 +32,7 @@ export default function TarotPage() {
         />
         <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 pb-safe-bottom">
           <TarotExperience />
+          <FreePlanAd className="py-6" />
         </main>
       </div>
     </PageTransition>

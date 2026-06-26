@@ -1,4 +1,5 @@
 import { isFirebaseConfigured } from "./config";
+import { conversationTitleFor, titleFromFirstMessage } from "@/lib/brand";
 
 const LOCAL_KEY = "cosmic_mirror_chat";
 const LOCAL_HISTORY_KEY = "cosmic_mirror_chat_history";
@@ -73,7 +74,7 @@ export async function listFirebaseChatHistory(userId: string): Promise<ChatHisto
       const data = c as { id: string; title?: string; updatedAt?: { toDate?: () => Date }; preview?: string };
       return {
         id: data.id,
-        title: data.title ?? "Cosmic conversation",
+        title: data.title ?? conversationTitleFor(),
         updatedAt: data.updatedAt?.toDate?.()?.toISOString() ?? new Date().toISOString(),
         preview: data.preview ?? "Synced reading",
         source: "cloud" as const,
@@ -111,8 +112,8 @@ export async function loadFirebaseConversation(
 
 function deriveTitle(messages: LocalChatSnapshot["messages"]): string {
   const first = messages.find((m) => m.role === "user")?.content;
-  if (!first) return "Cosmic conversation";
-  return first.length > 40 ? `${first.slice(0, 40)}…` : first;
+  if (!first) return conversationTitleFor();
+  return titleFromFirstMessage(first);
 }
 
 function lastUserPreview(messages: LocalChatSnapshot["messages"]): string {

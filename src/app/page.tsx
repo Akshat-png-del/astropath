@@ -6,6 +6,8 @@ import { FadeIn } from "@/components/cosmic/FadeIn";
 import { GlassCard } from "@/components/cosmic/GlassCard";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { PageTransition } from "@/components/cosmic/FadeIn";
+import { FreePlanAd } from "@/components/ads/FreePlanAd";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export default function LandingPage() {
   return (
@@ -19,6 +21,8 @@ export default function LandingPage() {
         </div>
         <FeatureShowcase />
         <Testimonials />
+
+        <FreePlanAd variant="infeed" className="py-8 sm:py-12" />
 
         <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24 max-w-3xl mx-auto w-full text-center">
           <FadeIn>
@@ -35,11 +39,7 @@ export default function LandingPage() {
           </FadeIn>
         </section>
 
-        <footer className="relative z-10 border-t border-white/[0.04] py-8 sm:py-10 px-4 sm:px-6 text-center">
-          <p className="text-[10px] text-white/20 tracking-[0.35em] uppercase">
-            made by the universe itself
-          </p>
-        </footer>
+        <SiteFooter />
       </main>
     </PageTransition>
   );

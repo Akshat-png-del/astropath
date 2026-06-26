@@ -5,6 +5,7 @@ import { ZodiacWheel } from "@/components/cosmic/ZodiacWheel";
 import { AnimatedHeadline, MovingTagline } from "@/components/cosmic/AnimatedHeadline";
 import { AppNav } from "@/components/layout/AppNav";
 import { motion } from "framer-motion";
+import { APP_NAME } from "@/lib/brand";
 
 export function HeroSection() {
   return (
@@ -67,7 +68,7 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.85 }}
             className="text-[10px] text-white/20 mt-6 tracking-[0.2em] uppercase"
           >
-            Twelve signs · one cosmic mirror
+            Twelve signs · one {APP_NAME}
           </motion.p>
         </motion.div>
       </div>

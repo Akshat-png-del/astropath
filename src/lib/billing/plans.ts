@@ -1,14 +1,12 @@
 import type { SubscriptionTier } from "@/lib/firebase/schemas";
+import {
+  CREDIT_COSTS,
+  FREE_MONTHLY_CREDITS,
+  FREE_TRIAL_CREDITS,
+  ANONYMOUS_TRIAL_CREDITS,
+} from "./credits-constants";
 
-export const CREDIT_COSTS = {
-  chatMessage: 1,
-  detailedReport: 5,
-  tarotReading: 2,
-  monthlyForecast: 3,
-} as const;
-
-export const FREE_MONTHLY_CREDITS = 3;
-
+export { CREDIT_COSTS, FREE_MONTHLY_CREDITS, FREE_TRIAL_CREDITS, ANONYMOUS_TRIAL_CREDITS };
 export { ANONYMOUS_MESSAGE_LIMIT, ANONYMOUS_TAROT_TRIAL, FREE_TAROT_TRIAL_PER_MONTH } from "./trials";
 
 export interface PlanDefinition {
@@ -32,10 +30,10 @@ export const PLANS: PlanDefinition[] = [
     priceYearly: 0,
     creditsPerMonth: FREE_MONTHLY_CREDITS,
     highlights: [
-      `${FREE_MONTHLY_CREDITS} credits / month`,
+      `${FREE_TRIAL_CREDITS} free trial credits (no sign-in)`,
       "1 free tarot trial · then 2 credits each",
       "Astrology chat (1 credit / message)",
-      "5 messages without sign-in",
+      `${FREE_TRIAL_CREDITS} credits / month when signed in`,
     ],
   },
   {

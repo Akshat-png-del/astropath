@@ -1,5 +1,6 @@
 import type { ExtractedInsight, Conversation } from "@/types";
 import type { ChatMessage, BirthDetailsPayload } from "../conversation-context";
+import { APP_NAME } from "@/lib/brand";
 import { buildConversationContext, applyBirthDetailsToContext } from "../conversation-context";
 import { interpretMessage } from "../message-interpreter";
 import { decideChatAction, type ChatDecision } from "../chat-decision";
@@ -55,13 +56,13 @@ function inferPreviousTopic(ctx: ConversationContext): import("../topic-detector
 function trimHistory(messages: ChatMessage[], max = SHORT_TERM_MESSAGE_LIMIT): ChatMessage[] {
   return messages
     .filter((m) => m.content?.trim())
-    .filter((m, idx) => !(m.role === "assistant" && idx === 0 && m.content.includes("Cosmic Mirror")))
+    .filter((m, idx) => !(m.role === "assistant" && idx === 0 && m.content.includes(APP_NAME)))
     .slice(-max);
 }
 
 function modelMessages(chatMessages: ChatMessage[]) {
   return chatMessages
-    .filter((m, idx) => !(m.role === "assistant" && idx === 0 && m.content.includes("Cosmic Mirror")))
+    .filter((m, idx) => !(m.role === "assistant" && idx === 0 && m.content.includes(APP_NAME)))
     .map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,

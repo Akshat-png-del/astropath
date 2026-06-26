@@ -2,6 +2,7 @@ import {
   doc,
   getDoc,
   runTransaction,
+  updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import { getFirebaseDb, isFirebaseConfigured } from "./config";
@@ -68,6 +69,90 @@ function normalizeUsage(raw: UserUsage | undefined): UserUsage {
         ? raw.periodStart
         : (raw.periodStart as { toDate?: () => Date }).toDate?.() ?? new Date(),
   };
+}
+
+/** Align free-tier balance with 20-credit allowance minus usage this period */
+export function computeFreeTierSpent(usage: UserUsage | undefined): number {
+  const normalized = normalizeUsage(usage);
+  return (
+    normalized.messagesThisPeriod * CREDIT_COSTS.chatMessage +
+    normalized.reportsThisPeriod * CREDIT_COSTS.detailedReport +
+    normalized.tarotThisPeriod * CREDIT_COSTS.tarotReading +
+    (normalized.monthlyForecastUnlocked ? CREDIT_COSTS.monthlyForecast : 0)
+  );
+}
+
+/** Align free-tier balance with 20-credit allowance minus usage this period */
+export function reconcileFreeTierCreditBalance(
+  credits: number,
+  usage: UserUsage | undefined,
+  tier: SubscriptionTier = "free"
+): number {
+  if (tier !== "free") return credits;
+
+  const spentThisPeriod = computeFreeTierSpent(usage);
+
+  // Stale stored balance with no recorded usage — grant full allowance
+  if (spentThisPeriod === 0 && credits < FREE_MONTHLY_CREDITS) {
+    return FREE_MONTHLY_CREDITS;
+  }
+
+  return Math.max(0, FREE_MONTHLY_CREDITS - spentThisPeriod);
+}
+
+export async function resetFreeTierAllowance(uid: string): Promise<void> {
+  if (!isFirebaseConfigured()) return;
+
+  const userRef = doc(getFirebaseDb(), COLLECTIONS.USERS, uid);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) return;
+
+  const tier = (snap.data().subscriptionTier as SubscriptionTier) ?? "free";
+  if (tier !== "free") return;
+
+  await updateDoc(userRef, {
+    credits: FREE_MONTHLY_CREDITS,
+    usage: defaultUsage(),
+    lastActiveAt: serverTimestamp(),
+  });
+  refreshBilling();
+}
+
+export async function syncFreeTierCreditsInFirestore(uid: string): Promise<void> {
+  if (!isFirebaseConfigured()) return;
+
+  const userRef = doc(getFirebaseDb(), COLLECTIONS.USERS, uid);
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const tier = (data.subscriptionTier as SubscriptionTier) ?? "free";
+  if (tier !== "free") return;
+
+  const current = (data.credits as number) ?? 0;
+  const usage = data.usage as UserUsage | undefined;
+  const spent = computeFreeTierSpent(usage);
+  const next = reconcileFreeTierCreditBalance(current, usage, tier);
+
+  const patch: Record<string, unknown> = { lastActiveAt: serverTimestamp() };
+  let needsUpdate = false;
+
+  if (next !== current) {
+    patch.credits = next;
+    needsUpdate = true;
+  }
+
+  // Orphaned usage counters with no matching credit deductions — fresh monthly allowance
+  if (spent === 0 && current < FREE_MONTHLY_CREDITS) {
+    patch.credits = FREE_MONTHLY_CREDITS;
+    patch.usage = defaultUsage();
+    needsUpdate = true;
+  }
+
+  if (!needsUpdate) return;
+
+  await updateDoc(userRef, patch);
+  refreshBilling();
 }
 
 export interface CreditCheckResult {
@@ -215,6 +300,8 @@ export async function consumeCredits(
       if (periodExpired(data.usage as UserUsage | undefined)) {
         usage = defaultUsage();
         if (tier === "free") credits = FREE_MONTHLY_CREDITS;
+      } else if (tier === "free") {
+        credits = reconcileFreeTierCreditBalance(credits, usage, tier);
       }
 
       if (action === "chatMessage" && features.unlimitedChat) {

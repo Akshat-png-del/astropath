@@ -1,6 +1,7 @@
 /** Free trials before credits / subscription kick in */
 
-export const ANONYMOUS_MESSAGE_LIMIT = 5;
+/** @deprecated Use ANONYMOUS_TRIAL_CREDITS — kept for migration */
+export const ANONYMOUS_MESSAGE_LIMIT = 10;
 export const ANONYMOUS_TAROT_TRIAL = 1;
 
 /** Signed-in free users: 1 complimentary tarot per billing period */
@@ -31,8 +32,4 @@ export function incrementAnonymousTarotCount(): void {
 
 export function hasAnonymousTarotTrialLeft(): boolean {
   return getAnonymousTarotCount() < ANONYMOUS_TAROT_TRIAL;
-}
-
-export function hasAnonymousChatTrialLeft(): boolean {
-  return getAnonymousMessageCount() < ANONYMOUS_MESSAGE_LIMIT;
 }

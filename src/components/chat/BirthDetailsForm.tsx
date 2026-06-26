@@ -6,6 +6,7 @@ import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { MapPin, Calendar, Clock, User } from "lucide-react";
 import type { BirthDetailsForm } from "@/types";
 import { BIRTH_DATE_EXAMPLE, BIRTH_FULL_EXAMPLE, BIRTH_PLACE_EXAMPLE, BIRTH_TIME_EXAMPLE } from "@/lib/ai/birth-examples";
+import { APP_NAME } from "@/lib/brand";
 
 export function BirthDetailsFormComponent({ onSubmit, isLoading }: { onSubmit: (d: BirthDetailsForm) => void; isLoading?: boolean }) {
   const [form, setForm] = useState<BirthDetailsForm>({ fullName: "", dateOfBirth: "", timeOfBirth: "", birthLocation: "" });
@@ -36,7 +37,7 @@ export function BirthDetailsFormComponent({ onSubmit, isLoading }: { onSubmit: (
           </div>
         ))}
         <CosmicButton type="submit" className="w-full" disabled={isLoading || !form.fullName || !form.dateOfBirth}>
-          {isLoading ? "Mapping Your Stars..." : "Reveal My Cosmic Mirror"}
+          {isLoading ? "Mapping Your Stars..." : `Reveal My ${APP_NAME}`}
         </CosmicButton>
       </form>
     </GlassCard>

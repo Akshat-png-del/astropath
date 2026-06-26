@@ -16,12 +16,10 @@ import {
 } from "@/lib/firebase/chat-persistence";
 import { consumeCredits } from "@/lib/firebase/credits";
 import { saveCosmicReport, saveBirthProfile } from "@/lib/firebase/firestore";
-import { ANONYMOUS_MESSAGE_LIMIT } from "@/lib/billing/plans";
-import {
-  useBilling,
-  getAnonymousMessageCount,
-  incrementAnonymousMessageCount,
-} from "@/hooks/useBilling";
+import { consumeAnonymousCredits, logCreditActivity } from "@/lib/billing/anonymous-credits";
+import { reportTitleFor } from "@/lib/brand";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
+import { useBilling } from "@/hooks/useBilling";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import { Send, RotateCcw, History } from "lucide-react";
 import type { BirthDetailsForm, Conversation, ConversationMessage } from "@/types";
@@ -312,14 +310,14 @@ export function ChatInterface() {
     setIsLoading(true);
 
     if (!user?.uid) {
-      if (getAnonymousMessageCount() >= ANONYMOUS_MESSAGE_LIMIT) {
-        setUpgradeReason("signin");
+      const result = consumeAnonymousCredits(CREDIT_COSTS.chatMessage, content, "chat");
+      if (!result.ok) {
+        setUpgradeReason("credits");
         setUpgradeOpen(true);
         setIsThinking(false);
         setIsLoading(false);
         return;
       }
-      incrementAnonymousMessageCount();
     } else if (firebaseReady && user?.uid) {
       if (!billing.canChat) {
         setUpgradeReason("credits");
@@ -336,6 +334,13 @@ export function ChatInterface() {
         setIsLoading(false);
         return;
       }
+      logCreditActivity({
+        message: content.slice(0, 120),
+        creditsUsed: CREDIT_COSTS.chatMessage,
+        creditsRemaining: result.credits ?? billing.credits - CREDIT_COSTS.chatMessage,
+        type: "chat",
+        signedIn: true,
+      });
     }
 
     await streamResponse(content);
@@ -496,7 +501,7 @@ export function ChatInterface() {
             userId: user.uid,
             conversationId: conversationId ?? "local",
             birthProfileId,
-            title: report.title ?? `${details.fullName}'s Cosmic Mirror`,
+            title: report.title ?? reportTitleFor(details.fullName),
             summary: report.summary,
             cosmicDna: report.cosmicDna,
             curiosityCards: fullReport.curiosityCards,
@@ -590,12 +595,12 @@ export function ChatInterface() {
                 window.setTimeout(scrollToBottom, 300);
               }}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
+              disabled={isLoading || (!billing.loading && !billing.canChat)}
               className="flex-1 resize-none rounded-2xl bg-white/[0.03] border border-white/[0.08] px-4 py-3 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/20 transition-all disabled:opacity-40"
             />
             <button
               onClick={handleSend}
-              disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
+              disabled={isLoading || (!billing.loading && !billing.canChat)}
               className="flex-shrink-0 w-10 h-10 rounded-full bg-white text-[#050505] flex items-center justify-center hover:bg-white/90 transition-all disabled:opacity-30"
             >
               <Send className="w-4 h-4" />
@@ -607,7 +612,7 @@ export function ChatInterface() {
                 key={chip.label}
                 type="button"
                 onClick={() => handleExampleChip(chip.text)}
-                disabled={isLoading || (!!user && !billing.loading && !billing.canChat)}
+                disabled={isLoading || (!billing.loading && !billing.canChat)}
                 className="text-[11px] px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.02] text-white/35 hover:text-white/60 hover:border-white/15 transition-colors disabled:opacity-40"
               >
                 {chip.label}
