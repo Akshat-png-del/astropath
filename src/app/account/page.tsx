@@ -7,7 +7,6 @@ import { useBilling } from "@/hooks/useBilling";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { CREDIT_COSTS, getPlan, PLANS } from "@/lib/billing/plans";
 import { PricingSection } from "@/components/billing/PricingSection";
-import { DevTestingPanel } from "@/components/billing/DevTestingPanel";
 import { logOut } from "@/lib/firebase/auth";
 import { APP_NAME } from "@/lib/brand";
 
@@ -45,8 +44,6 @@ export default function AccountPage() {
       <div className="max-w-lg mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <h1 className="font-display text-2xl text-white/85 mb-1">Account</h1>
         <p className="text-sm text-white/35 mb-10">{user.email}</p>
-
-        <DevTestingPanel />
 
         <div className="glass-card rounded-2xl p-6 mb-6 space-y-4">
           <div className="flex justify-between items-center">

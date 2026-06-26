@@ -15,8 +15,9 @@ import {
   trackAnalytics,
 } from "@/lib/firebase/chat-persistence";
 import { consumeCredits } from "@/lib/firebase/credits";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
 import { saveCosmicReport, saveBirthProfile } from "@/lib/firebase/firestore";
-import { consumeAnonymousCredits, logCreditActivity } from "@/lib/billing/anonymous-credits";
+import { chargeCredits } from "@/lib/billing/credit-ledger";
 import { reportTitleFor } from "@/lib/brand";
 import { CREDIT_COSTS } from "@/lib/billing/plans";
 import { useBilling } from "@/hooks/useBilling";
@@ -309,8 +310,11 @@ export function ChatInterface() {
     setIsThinking(true);
     setIsLoading(true);
 
-    if (!user?.uid) {
-      const result = consumeAnonymousCredits(CREDIT_COSTS.chatMessage, content, "chat");
+    const signedIn = !!user?.uid;
+    const freeTierCharge = billing.usesFreeCredits;
+
+    if (freeTierCharge) {
+      const result = chargeCredits("chatMessage", content, "chat", signedIn);
       if (!result.ok) {
         setUpgradeReason("credits");
         setUpgradeOpen(true);
@@ -318,7 +322,7 @@ export function ChatInterface() {
         setIsLoading(false);
         return;
       }
-    } else if (firebaseReady && user?.uid) {
+    } else if (signedIn && firebaseReady && isFirebaseConfigured()) {
       if (!billing.canChat) {
         setUpgradeReason("credits");
         setUpgradeOpen(true);
@@ -334,15 +338,15 @@ export function ChatInterface() {
         setIsLoading(false);
         return;
       }
-      logCreditActivity({
-        message: content.slice(0, 120),
-        creditsUsed: CREDIT_COSTS.chatMessage,
-        creditsRemaining: result.credits ?? billing.credits - CREDIT_COSTS.chatMessage,
-        type: "chat",
-        signedIn: true,
-      });
+    } else if (!billing.canChat) {
+      setUpgradeReason("credits");
+      setUpgradeOpen(true);
+      setIsThinking(false);
+      setIsLoading(false);
+      return;
     }
 
+    // Keep Firestore in sync for paid (metered) tiers only — free tier uses local ledger
     await streamResponse(content);
   };
 

@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { LegalPageLayout } from "@/components/layout/LegalPageLayout";
-import { APP_NAME, pageMetadata } from "@/lib/brand";
+import { APP_NAME, APP_TAGLINE, pageMetadata } from "@/lib/brand";
 
 export const metadata: Metadata = pageMetadata(
   "About Us",
-  `Learn about ${APP_NAME}, your personal cosmic astrology and tarot companion.`
+  `Learn about ${APP_NAME}, your personal astrology and tarot guide.`
 );
 
 export default function AboutPage() {
   return (
     <LegalPageLayout
       title="About Us"
-      subtitle="A wise cosmic companion that understands your story before reading your stars."
+      subtitle={`${APP_TAGLINE} — a wise astrology guide that understands your story before reading your stars.`}
     >
       <section className="space-y-3">
         <h2 className="font-display text-lg text-white/75">Our mission</h2>
@@ -35,7 +35,7 @@ export default function AboutPage() {
         <h2 className="font-display text-lg text-white/75">What we offer</h2>
         <p>
           Free trial credits let you explore chat and tarot without signing in. Create an account to
-          save progress, unlock your cosmic report, and access deeper dashboard features. Paid plans
+          save progress, unlock your birth chart report, and access deeper dashboard features. Paid plans
           remove ads and expand unlimited access for regular seekers.
         </p>
       </section>

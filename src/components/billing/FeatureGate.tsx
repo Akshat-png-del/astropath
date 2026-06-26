@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { STELLAR_PLAN_NAME } from "@/lib/brand";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 
 interface FeatureGateProps {
@@ -29,7 +30,7 @@ export function FeatureGate({
           <h4 className="font-display text-base text-white/80 mb-2">{title}</h4>
           <p className="text-xs text-white/35 mb-4 leading-relaxed">{description}</p>
           <CosmicButton size="sm" href={upgradeHref} className="w-full">
-            Upgrade to Cosmic
+            Upgrade to {STELLAR_PLAN_NAME}
           </CosmicButton>
           <Link href="/auth" className="block text-[10px] text-white/25 mt-3 hover:text-white/40">
             Or sign in for free trials

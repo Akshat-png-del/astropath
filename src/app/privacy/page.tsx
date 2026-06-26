@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPageLayout } from "@/components/layout/LegalPageLayout";
-import { APP_NAME, pageMetadata } from "@/lib/brand";
+import { APP_NAME, ORACLE_PLAN_NAME, STELLAR_PLAN_NAME, pageMetadata } from "@/lib/brand";
 
 export const metadata: Metadata = pageMetadata(
   "Privacy Policy",
@@ -52,8 +52,8 @@ export default function PrivacyPage() {
         <h2 className="font-display text-lg text-white/75">Advertising</h2>
         <p>
           Free-plan users may see ads served by Google AdSense. Ad partners may use cookies or
-          similar technologies as described in Google&apos;s policies. Paid subscribers on Cosmic or
-          Oracle plans do not see in-app advertisements.
+          similar technologies as described in Google&apos;s policies. Paid subscribers on {STELLAR_PLAN_NAME} or{" "}
+          {ORACLE_PLAN_NAME} plans do not see in-app advertisements.
         </p>
       </section>
 

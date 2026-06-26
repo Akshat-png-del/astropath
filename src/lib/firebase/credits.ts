@@ -82,7 +82,7 @@ export function computeFreeTierSpent(usage: UserUsage | undefined): number {
   );
 }
 
-/** Align free-tier balance with 20-credit allowance minus usage this period */
+/** Align free-tier balance with allowance minus recorded usage */
 export function reconcileFreeTierCreditBalance(
   credits: number,
   usage: UserUsage | undefined,
@@ -92,12 +92,15 @@ export function reconcileFreeTierCreditBalance(
 
   const spentThisPeriod = computeFreeTierSpent(usage);
 
-  // Stale stored balance with no recorded usage — grant full allowance
-  if (spentThisPeriod === 0 && credits < FREE_MONTHLY_CREDITS) {
-    return FREE_MONTHLY_CREDITS;
+  if (spentThisPeriod > 0) {
+    return Math.max(0, FREE_MONTHLY_CREDITS - spentThisPeriod);
   }
 
-  return Math.max(0, FREE_MONTHLY_CREDITS - spentThisPeriod);
+  // No usage counters — trust stored credits (already decremented client-side)
+  if (credits <= 0 || credits > FREE_MONTHLY_CREDITS) {
+    return FREE_MONTHLY_CREDITS;
+  }
+  return credits;
 }
 
 export async function resetFreeTierAllowance(uid: string): Promise<void> {
@@ -142,10 +145,8 @@ export async function syncFreeTierCreditsInFirestore(uid: string): Promise<void>
     needsUpdate = true;
   }
 
-  // Orphaned usage counters with no matching credit deductions — fresh monthly allowance
-  if (spent === 0 && current < FREE_MONTHLY_CREDITS) {
+  if (current > FREE_MONTHLY_CREDITS || current < 0) {
     patch.credits = FREE_MONTHLY_CREDITS;
-    patch.usage = defaultUsage();
     needsUpdate = true;
   }
 
@@ -280,7 +281,7 @@ export async function consumeCredits(
   }
 
   if (!isFirebaseConfigured()) {
-    return process.env.NODE_ENV === "development" ? { ok: true } : { ok: false, error: "Billing unavailable." };
+    return { ok: false, error: "Billing unavailable." };
   }
 
   const userRef = doc(getFirebaseDb(), COLLECTIONS.USERS, uid);

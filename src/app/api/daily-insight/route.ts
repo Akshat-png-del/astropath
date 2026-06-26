@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   if (!isOpenAIConfigured()) {
     return NextResponse.json({
-      guidance: "Today invites gentle introspection. The cosmos suggests honoring your emotional rhythm rather than pushing against it — even small acts of self-kindness carry weight under today's planetary alignment.",
+      guidance: "Today invites gentle introspection. The stars suggest honoring your emotional rhythm rather than pushing against it — even small acts of self-kindness carry weight under today's planetary alignment.",
       focusArea: "Emotional well-being",
       affirmation: "I move through this day with patience and trust in my own timing.",
       planetaryInfluence: "Moon energy — nurturing inner tides",
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       4
     );
 
-    const prompt = `Generate today's cosmic guidance for a user with Sun in ${sunSign}, Moon in ${moonSign}, Rising in ${risingSign}.
+    const prompt = `Generate today's personalized astrology guidance for a user with Sun in ${sunSign}, Moon in ${moonSign}, Rising in ${risingSign}.
 
 USER MEMORIES:
 ${memories.map((m: string) => `- ${m}`).join("\n") || "No prior memories"}
@@ -66,7 +66,7 @@ Use supportive, reflective language. No fear-based predictions.`;
     return NextResponse.json({
       guidance: "The stars whisper of rest and renewal today. Allow yourself space to breathe — clarity often arrives when we stop chasing it.",
       focusArea: "Inner peace",
-      affirmation: "I am exactly where I need to be in my cosmic journey.",
+      affirmation: "I am exactly where I need to be on my astrology journey.",
       planetaryInfluence: "Neptune — intuition and dreams",
       mood: "Calm and receptive",
       userId,

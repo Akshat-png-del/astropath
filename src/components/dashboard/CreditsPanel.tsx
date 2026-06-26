@@ -10,9 +10,11 @@ import { useBilling } from "@/hooks/useBilling";
 import {
   CREDITS_UPDATED_EVENT,
   getCreditHistory,
+  repairCreditLedger,
   type CreditHistoryEntry,
 } from "@/lib/billing/anonymous-credits";
 import { CREDIT_COSTS, FREE_TRIAL_CREDITS } from "@/lib/billing/plans";
+import { PAID_PLANS_LABEL } from "@/lib/brand";
 import { BILLING_REFRESH_EVENT } from "@/lib/billing/refresh";
 
 function formatTime(iso: string): string {
@@ -49,7 +51,10 @@ export function CreditsPanel() {
   const [history, setHistory] = useState<CreditHistoryEntry[]>([]);
 
   useEffect(() => {
-    const load = () => setHistory(getCreditHistory());
+    const load = () => {
+      repairCreditLedger();
+      setHistory(getCreditHistory());
+    };
     load();
     window.addEventListener(CREDITS_UPDATED_EVENT, load);
     window.addEventListener(BILLING_REFRESH_EVENT, load);
@@ -57,12 +62,13 @@ export function CreditsPanel() {
       window.removeEventListener(CREDITS_UPDATED_EVENT, load);
       window.removeEventListener(BILLING_REFRESH_EVENT, load);
     };
-  }, [user, billing.credits, billing.anonymousCredits, billing.creditsUsedThisPeriod]);
+  }, [user, billing.credits, billing.anonymousCredits, billing.creditsUsedThisPeriod, billing.creditsHydrated]);
 
   const isAnonymous = !user;
   const isFreePlan = isAnonymous || billing.tier === "free";
   const unlimited = !!user && billing.unlimitedChat;
-  const remaining = isAnonymous ? billing.anonymousCredits : billing.credits;
+  const usesLocalLedger = billing.usesFreeCredits || isAnonymous;
+  const remaining = usesLocalLedger ? billing.anonymousCredits : billing.credits;
   const planLimit = isFreePlan && !unlimited ? FREE_TRIAL_CREDITS : null;
   const used = planLimit != null ? billing.creditsUsedThisPeriod : null;
   const pct = planLimit ? Math.min(100, (remaining / planLimit) * 100) : 100;
@@ -86,7 +92,7 @@ export function CreditsPanel() {
           </h2>
           <p className="text-sm text-white/35">
             {unlimited
-              ? "Cosmic & Oracle plans include unlimited chat and tarot."
+              ? `${PAID_PLANS_LABEL} plans include unlimited chat and tarot.`
               : planLimit != null
                 ? `${CREDIT_COSTS.chatMessage} credit per message · ${planLimit} credits included on Free plan`
                 : `${CREDIT_COSTS.chatMessage} credit per message`}

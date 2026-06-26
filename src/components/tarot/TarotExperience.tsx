@@ -101,7 +101,7 @@ export function TarotExperience() {
   };
 
   const trialHint = !user
-    ? hasAnonymousTarotTrialLeft()
+    ? billing.canTarotAnonymous
       ? "1 free reading without sign-in"
       : "Sign in for more readings"
     : billing.unlimitedTarot

@@ -34,7 +34,7 @@ export function CosmicDnaDisplay({ dna }: { dna: CosmicDnaProfile }) {
       <div className="flex items-center gap-3 mb-6">
         <div className="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/40">☽</div>
         <div>
-          <h3 className="font-display text-xl text-white/80">Cosmic DNA</h3>
+          <h3 className="font-display text-xl text-white/80">Birth Chart Profile</h3>
           <p className="text-sm text-white/30">{dna.archetype}</p>
         </div>
       </div>

@@ -32,7 +32,10 @@ export interface InternalReasoning {
 }
 
 const FRESH_CONTEXT_RE =
-  /\b(my name is|i am |i'm )[\w\s]{0,30}(dob|born|birth|date of birth)/i;
+  /\b(my name is|i am |i'm )[\w\s.,]{0,40}(dob|born|birth|date of birth)/i;
+
+const MONTH_NAME_DATE_RE =
+  /\b\d{1,2}\s+(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{4}\b/i;
 
 const FUTURE_RE =
   /\b(future|coming|ahead|expect|outlook|next month|next week|this month|this year|what.?s next|will we|will (he|she|they)|get back|reconcile|come back)\b/i;
@@ -54,10 +57,16 @@ export function detectOrientation(message: string): QuestionOrientation {
 
 export function isFreshReadingContext(message: string): boolean {
   if (FRESH_CONTEXT_RE.test(message)) return true;
-  return (
-    /\b(dob|date of birth|born on|birth date|birthday)\b/i.test(message) &&
-    /\d{1,2}[\/\-\.]\d{1,2}/.test(message)
-  );
+  if (MONTH_NAME_DATE_RE.test(message)) return true;
+  if (
+    /\b(born|dob|birth date|date of birth|birthday|birth time)\b/i.test(message) &&
+    (/\d{1,2}[\/\-\.]\d{1,2}/.test(message) ||
+      MONTH_NAME_DATE_RE.test(message) ||
+      /\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(message))
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function inferUserGoal(message: string, orientation: QuestionOrientation, topic: ProductTopic): string {

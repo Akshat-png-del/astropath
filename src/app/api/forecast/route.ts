@@ -39,7 +39,7 @@ function fallbackMonthly(sunSign: string) {
   return {
     sunSign,
     month,
-    theme: traits ? `${traits.archetype} Awakening` : "Cosmic Recalibration",
+    theme: traits ? `${traits.archetype} Awakening` : "Planetary Recalibration",
     overview: traits
       ? `${month} asks ${sunSign} souls to honor ${traits.strengths[0].toLowerCase()} while gently addressing ${traits.challenges[0].toLowerCase()}.`
       : `${month} favors patience, honest self-reflection, and one meaningful commitment.`,
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     const prompt =
       type === "monthly"
-        ? `Generate a ${new Date().toLocaleString("en-US", { month: "long" })} cosmic forecast for Sun in ${sunSign}, Moon in ${moonSign}.
+        ? `Generate a ${new Date().toLocaleString("en-US", { month: "long" })} astrology forecast for Sun in ${sunSign}, Moon in ${moonSign}.
 Return JSON: { "month": "string", "theme": "string", "overview": "string (2-3 sentences)", "focusAreas": ["string"], "affirmation": "string" }
 Supportive, mystical, never fear-based.`
         : `Generate a weekly energy forecast for Sun in ${sunSign}, Moon in ${moonSign}.

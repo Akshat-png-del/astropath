@@ -6,6 +6,7 @@ import {
   listFirebaseChatHistory,
   type ChatHistoryItem,
 } from "@/lib/firebase/chat-persistence";
+import { STELLAR_PLAN_NAME } from "@/lib/brand";
 import { History, X, Cloud } from "lucide-react";
 
 interface ChatHistoryPanelProps {
@@ -89,7 +90,7 @@ export function ChatHistoryPanel({
             <p className="text-xs text-white/25 px-2 py-4">Loading…</p>
           ) : items.length === 0 ? (
             <p className="text-xs text-white/25 px-2 py-4 leading-relaxed">
-              Conversations save as you chat. Sign in for cloud sync on Cosmic plan.
+              Conversations save as you chat. Sign in for cloud sync on the {STELLAR_PLAN_NAME} plan.
             </p>
           ) : (
             items.map((item) => (

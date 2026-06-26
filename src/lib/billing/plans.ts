@@ -25,7 +25,7 @@ export const PLANS: PlanDefinition[] = [
   {
     id: "free",
     name: "Free",
-    tagline: "Start your cosmic journey",
+    tagline: "Start your astrology journey",
     priceMonthly: 0,
     priceYearly: 0,
     creditsPerMonth: FREE_MONTHLY_CREDITS,
@@ -38,7 +38,7 @@ export const PLANS: PlanDefinition[] = [
   },
   {
     id: "cosmic",
-    name: "Cosmic",
+    name: "Stellar",
     tagline: "For regular seekers",
     priceMonthly: 9,
     priceYearly: 79,
@@ -55,12 +55,12 @@ export const PLANS: PlanDefinition[] = [
   {
     id: "oracle",
     name: "Oracle",
-    tagline: "Full cosmic access",
+    tagline: "Full astrology access",
     priceMonthly: 19,
     priceYearly: 149,
     creditsPerMonth: "unlimited",
     highlights: [
-      "Everything in Cosmic",
+      "Everything in Stellar",
       "Unlimited detailed reports",
       "Priority chart readings",
       "Early access to new spreads",

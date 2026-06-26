@@ -16,7 +16,7 @@ export function PricingSection() {
     <section className="relative z-10 px-4 sm:px-6 py-12 sm:py-16 max-w-5xl mx-auto w-full">
       <div className="text-center mb-14">
         <p className="text-[10px] tracking-[0.35em] uppercase text-white/25 mb-4">Freemium · Credits · Plans</p>
-        <h1 className="font-display text-3xl sm:text-4xl text-white/85 mb-4">Choose your cosmic path</h1>
+        <h1 className="font-display text-3xl sm:text-4xl text-white/85 mb-4">Choose your astrology path</h1>
         <p className="text-white/35 max-w-lg mx-auto text-sm leading-relaxed">
           Start free with {PLANS[0].creditsPerMonth} credits per month.
           Chat costs {CREDIT_COSTS.chatMessage} credit · reports {CREDIT_COSTS.detailedReport} credits · tarot {CREDIT_COSTS.tarotReading} credits.

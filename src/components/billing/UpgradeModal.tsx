@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { CREDIT_COSTS, FREE_MONTHLY_CREDITS, FREE_TRIAL_CREDITS } from "@/lib/billing/plans";
+import { PAID_PLANS_LABEL, STELLAR_PLAN_NAME } from "@/lib/brand";
 
 export type UpgradeReason =
   | "credits"
@@ -26,27 +27,27 @@ const COPY: Record<UpgradeReason, { title: string; body: string }> = {
   },
   report: {
     title: "Unlock your detailed report",
-    body: `Full cosmic reports use ${CREDIT_COSTS.detailedReport} credits, or are included with Cosmic & Oracle plans.`,
+    body: `Full birth chart reports use ${CREDIT_COSTS.detailedReport} credits, or are included with ${PAID_PLANS_LABEL} plans.`,
   },
   signin: {
     title: "Sign in to continue",
     body: `Create a free account for ${FREE_MONTHLY_CREDITS} monthly credits, 1 free tarot/month, saved chart, and cloud history on paid plans.`,
   },
   history: {
-    title: "Cloud history is a Cosmic feature",
+    title: `Cloud history is a ${STELLAR_PLAN_NAME} feature`,
     body: "Upgrade to sync readings across all your devices.",
   },
   tarot: {
     title: "More tarot readings",
-    body: `Free plan includes 1 tarot trial per month, then ${CREDIT_COSTS.tarotReading} credits each. Cosmic & Oracle include unlimited tarot.`,
+    body: `Free plan includes 1 tarot trial per month, then ${CREDIT_COSTS.tarotReading} credits each. ${PAID_PLANS_LABEL} include unlimited tarot.`,
   },
   forecast: {
     title: "Unlock monthly forecast",
-    body: `Month-ahead guidance is on Cosmic & Oracle plans, or use ${CREDIT_COSTS.monthlyForecast} credits on Free.`,
+    body: `Month-ahead guidance is on ${PAID_PLANS_LABEL} plans, or use ${CREDIT_COSTS.monthlyForecast} credits on Free.`,
   },
   compatibility: {
     title: "Unlock compatibility deep-dive",
-    body: "Full zodiac compatibility analysis is included with Cosmic & Oracle plans.",
+    body: `Full zodiac compatibility analysis is included with ${PAID_PLANS_LABEL} plans.`,
   },
 };
 

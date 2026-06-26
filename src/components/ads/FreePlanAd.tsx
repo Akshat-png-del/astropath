@@ -7,8 +7,10 @@ import {
   ADSENSE_CLIENT_ID,
   getAdSlotId,
   isAdSenseConfigured,
-  type AdSlotVariant,
 } from "@/lib/ads/adsense";
+
+import type { AdSlotVariant } from "@/lib/ads/adsense";
+import { STELLAR_PLAN_NAME } from "@/lib/brand";
 import { useShowAds } from "@/hooks/useShowAds";
 
 interface AdBannerProps {
@@ -57,7 +59,7 @@ export function FreePlanAd({
               href="/pricing"
               className="text-[10px] text-white/30 hover:text-white/50 transition-colors"
             >
-              Go ad-free with Cosmic →
+              Go ad-free with {STELLAR_PLAN_NAME} →
             </Link>
           )}
         </div>

@@ -9,7 +9,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const COSMIC_SYSTEM_PROMPT = `You are AstroPath — a warm, intuitive cosmic companion. Never make fear-based predictions. Use supportive, reflective language. Build rapport before asking for birth details.`;
+const COSMIC_SYSTEM_PROMPT = `You are AstroPath — a warm, intuitive astrology guide. Never make fear-based predictions. Use supportive, reflective language. Build rapport before asking for birth details. Avoid the word "cosmic" in replies — use clear astrology terms instead.`;
 
 export const onMessageCreated = functions.firestore
   .document("messages/{messageId}")
@@ -102,7 +102,7 @@ export const generateDailyInsight = functions.https.onCall(
       messages: [
         {
           role: "user",
-          content: `Generate today's cosmic guidance. Memories: ${memories.join(", ")}. Return JSON with guidance, focusArea, affirmation, planetaryInfluence, mood.`,
+          content: `Generate today's personalized astrology guidance. Memories: ${memories.join(", ")}. Return JSON with guidance, focusArea, affirmation, planetaryInfluence, mood.`,
         },
       ],
       response_format: { type: "json_object" },

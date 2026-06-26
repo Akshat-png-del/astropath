@@ -1,25 +1,51 @@
 "use client";
 
-import Image from "next/image";
-import { getZodiacImage } from "@/lib/astrology/zodiac-images";
 import { cn } from "@/lib/utils";
+import { ZodiacIcon } from "@/components/zodiac/ZodiacIcon";
+import { getElementTokens, isKnownSign } from "@/lib/astrology/zodiac-tokens";
 
 interface ZodiacSignImageProps {
   sign: string;
   size?: number;
   className?: string;
   priority?: boolean;
+  ring?: boolean;
+  interactive?: boolean;
+  shimmer?: boolean;
 }
 
-export function ZodiacSignImage({ sign, size = 28, className, priority }: ZodiacSignImageProps) {
+/** Unified zodiac sign renderer — handcrafted line-art icons with element accents */
+export function ZodiacSignImage({
+  sign,
+  size = 28,
+  className,
+  ring = true,
+  interactive = false,
+  shimmer = false,
+}: ZodiacSignImageProps) {
+  if (!isKnownSign(sign)) {
+    return (
+      <span
+        className={cn("inline-flex items-center justify-center rounded-full border border-white/10 text-white/30", className)}
+        style={{ width: size, height: size, fontSize: size * 0.35 }}
+      >
+        ·
+      </span>
+    );
+  }
+
+  const tokens = getElementTokens(sign);
+
   return (
-    <Image
-      src={getZodiacImage(sign)}
-      alt={`${sign} zodiac sign`}
-      width={size}
-      height={size}
-      priority={priority}
-      className={cn("object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]", className)}
-    />
+    <span
+      className={cn(
+        "inline-flex items-center justify-center",
+        interactive && "zodiac-icon-interactive",
+        className
+      )}
+      style={{ filter: interactive ? undefined : `drop-shadow(0 0 10px ${tokens.glow})` }}
+    >
+      <ZodiacIcon sign={sign} size={size} ring={ring} shimmer={shimmer || interactive} />
+    </span>
   );
 }

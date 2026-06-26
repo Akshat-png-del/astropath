@@ -31,10 +31,10 @@ export default function LandingPage() {
                 Guidance, not certainty
               </p>
               <p className="text-white/30 text-sm leading-relaxed max-w-md mx-auto mb-8">
-                We never make fear-based predictions. Every insight comes with
-                transparent reasoning and supportive language for your journey.
+                We never make fear-based predictions. Every insight includes transparent
+                reasoning and balanced language — for reflection, not persuasion.
               </p>
-              <CosmicButton size="lg" href="/chat">Start Your Journey</CosmicButton>
+              <CosmicButton size="lg" href="/chat">Try a reading</CosmicButton>
             </GlassCard>
           </FadeIn>
         </section>

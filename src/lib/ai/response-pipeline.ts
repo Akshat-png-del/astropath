@@ -39,6 +39,13 @@ export const FORBIDDEN_PHRASES = [
   "from a chart perspective, venus and the moon",
   "feel safe in love again",
   "whether with him or someone new",
+  "generic script",
+  "not a generic script",
+  "thanks for adding that",
+  "that detail matters",
+  "i'll stay with what you're actually",
+  "not a script",
+  "helps me read the emotional picture",
 ];
 
 export const RESPONSE_PIPELINE = `Write one natural, premium reading shaped entirely to their message.

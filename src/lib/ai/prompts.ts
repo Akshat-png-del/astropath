@@ -95,7 +95,7 @@ export function buildReportPrompt(
   knowledgeContext: string,
   userName: string
 ): string {
-  return `Personalised cosmic report for ${userName}. Plain language. Warm tone like a professional astrologer.
+  return `Personalised birth chart report for ${userName}. Plain language. Warm tone like a professional astrologer. Avoid the word "cosmic" in user-facing text — use astrology terms like birth chart, stars, planets, and zodiac instead.
 
 INSIGHTS FROM CHAT:
 ${conversationInsights.map((i) => `- ${i.category}: ${i.value}`).join("\n")}

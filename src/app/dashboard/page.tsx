@@ -89,11 +89,11 @@ export default function DashboardPage() {
   }, [report, dailyInsight, setDailyInsight, user]);
 
   const milestones = [
-    { label: "Started cosmic conversation", done: true },
+    { label: "Started your first chat", done: true },
     { label: "Shared birth details", done: !!report },
-    { label: "Received cosmic report", done: !!report },
+    { label: "Received birth chart report", done: !!report },
     { label: "Explored daily guidance", done: !!dailyInsight },
-    { label: "7-day cosmic streak", done: false },
+    { label: "7-day reading streak", done: false },
   ];
 
   const journalEntries = insights.slice(0, 3).map((i, idx) => ({
@@ -133,11 +133,11 @@ export default function DashboardPage() {
         </div>
 
         <FadeIn>
-          <h1 className="font-display text-3xl sm:text-4xl text-gradient mb-2">Your Cosmic Dashboard</h1>
+          <h1 className="font-display text-3xl sm:text-4xl text-gradient mb-2">Your Astrology Dashboard</h1>
           <p className="text-white/35 text-sm leading-relaxed max-w-2xl mb-8">
             {billing.isAnonymousTrial
               ? "Free trial — track your credits and message history here. No sign-in required."
-              : "Track credits, readings, and your cosmic journey."}
+              : "Track credits, readings, and your astrology journey."}
           </p>
         </FadeIn>
 
@@ -148,7 +148,7 @@ export default function DashboardPage() {
         {!report ? (
           <GlassCard className="text-center py-10 px-6 mb-10">
             <p className="text-3xl mb-4 text-white/20">☽</p>
-            <h2 className="font-display text-xl text-white/70 mb-2">Your cosmic report awaits</h2>
+            <h2 className="font-display text-xl text-white/70 mb-2">Your birth chart report awaits</h2>
             <p className="text-sm text-white/30 mb-6 leading-relaxed max-w-md mx-auto">
               Use your trial credits in chat. After you share birth details and generate a report, your full
               dashboard unlocks here.

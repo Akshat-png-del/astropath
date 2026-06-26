@@ -1,4 +1,7 @@
-/** Public SVG paths for zodiac sign artwork */
+/**
+ * Zodiac image paths — static SVG fallbacks for OG/meta.
+ * Primary UI uses inline React icons from `@/components/zodiac/ZodiacIcon`.
+ */
 export const ZODIAC_IMAGE: Record<string, string> = {
   Aries: "/zodiac/aries.svg",
   Taurus: "/zodiac/taurus.svg",

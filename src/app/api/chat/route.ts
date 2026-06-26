@@ -277,7 +277,7 @@ function generateFallbackReport(
 
   return {
     title: reportTitleFor(userName),
-    summary: `Dear ${userName}, your cosmic blueprint reveals a soul of remarkable depth. With your Sun in ${sun}, Moon in ${moon}, and ${rising} rising, you carry a unique blend of energies that shapes how you move through the world.${emotionalInsight ? ` Your recent emotional landscape — ${emotionalInsight.value.toLowerCase()} — is reflected in your chart's current transits, inviting gentle self-reflection rather than urgency.` : ""} This reading is a mirror for self-discovery, designed to spark curiosity about who you are becoming.`,
+    summary: `Dear ${userName}, your birth chart reveals a soul of remarkable depth. With your Sun in ${sun}, Moon in ${moon}, and ${rising} rising, you carry a unique blend of energies that shapes how you move through the world.${emotionalInsight ? ` Your recent emotional landscape — ${emotionalInsight.value.toLowerCase()} — is reflected in your chart's current transits, inviting gentle self-reflection rather than urgency.` : ""} This reading is a mirror for self-discovery, designed to spark curiosity about who you are becoming.`,
     cosmicDna: {
       archetype: `The ${sun} Visionary`,
       coreTraits: ["Intuitive", "Reflective", "Resilient", "Deep-feeling", "Seeking"],
@@ -328,7 +328,7 @@ function generateFallbackReport(
     sections: [
       {
         title: "Your Inner World",
-        content: `With your Moon in ${moon}, your emotional landscape is rich and complex. You feel things deeply — sometimes before you can name them. This sensitivity is not a burden; it's your cosmic gift for understanding what others miss.`,
+        content: `With your Moon in ${moon}, your emotional landscape is rich and complex. You feel things deeply — sometimes before you can name them. This sensitivity is not a burden; it's a gift for understanding what others miss.`,
         confidence: 0.8,
         reasoning: `Moon sign ${moon} governs emotional processing`,
         astrologicalBasis: [`Moon in ${moon}`, "4th house themes"],

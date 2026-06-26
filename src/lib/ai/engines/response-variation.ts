@@ -10,6 +10,11 @@ function wasUsedRecently(text: string, priorAssistantMessages: string[]): boolea
   return priorAssistantMessages.some((prior) => prior.toLowerCase().includes(needle.slice(0, 30)));
 }
 
+/** True if this wording already appeared in recent assistant replies. */
+export function wasSaidRecently(text: string, priorAssistantMessages: string[]): boolean {
+  return wasUsedRecently(text, priorAssistantMessages);
+}
+
 /** Pick from options, skipping any already used in recent assistant replies. */
 export function pickFreshAdvice(
   seed: string,

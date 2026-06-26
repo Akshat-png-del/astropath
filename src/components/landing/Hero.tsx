@@ -18,7 +18,7 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="text-[10px] tracking-[0.35em] uppercase text-white/25 mb-6 sm:mb-8"
           >
-            Personal Cosmic Astrology
+            Personal Astrology & Tarot
           </motion.p>
 
           <div className="relative z-20 isolate overflow-visible mb-1">
@@ -32,7 +32,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.9 }}
             className="text-base sm:text-lg text-white/35 max-w-md mx-auto lg:mx-0 mb-10 mt-8 leading-relaxed"
           >
-            A wise cosmic companion that understands your story before reading your stars.
+            A wise astrology guide that understands your story before reading your stars.
           </motion.p>
 
           <motion.div

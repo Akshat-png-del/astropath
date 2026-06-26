@@ -212,7 +212,7 @@ export function getCompatibility(sign1: string, sign2: string): {
   return {
     score,
     summary: score >= 75
-      ? `A powerful cosmic connection between ${sign1} and ${sign2} — the stars suggest deep resonance with room for growth.`
+      ? `A powerful astrological connection between ${sign1} and ${sign2} — the stars suggest deep resonance with room for growth.`
       : score >= 55
         ? `${sign1} and ${sign2} share meaningful chemistry with complementary differences that can deepen over time.`
         : `${sign1} and ${sign2} offer a lesson in contrast — understanding each other's rhythms is the key.`,

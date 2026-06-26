@@ -12,6 +12,13 @@
   --glass: rgba(17, 17, 17, 0.6);
   --glass-border: rgba(192, 192, 192, 0.08);
   --glass-highlight: rgba(255, 255, 255, 0.04);
+  /* Zodiac / celestial design tokens */
+  --zodiac-ivory: #f5f0e6;
+  --zodiac-gold: #d4a053;
+  --zodiac-fire: #d4a053;
+  --zodiac-earth: #a8845a;
+  --zodiac-air: #9eb4c9;
+  --zodiac-water: #7a9ea8;
 }
 
 @theme inline {
@@ -270,3 +277,56 @@ body {
 .tarot-gold-shimmer {
   animation: tarot-shimmer 3s ease-in-out infinite;
 }
+
+/* ── Zodiac icon system ── */
+.zodiac-icon {
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), filter 0.45s ease;
+}
+
+.zodiac-icon-glyphs {
+  transform-origin: 32px 32px;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.zodiac-icon-interactive {
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), filter 0.45s ease;
+}
+
+.zodiac-icon-interactive:hover,
+.zodiac-icon-interactive:focus-visible {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(212, 160, 83, 0.35)));
+}
+
+.zodiac-icon-interactive:hover .zodiac-icon-glyphs,
+.zodiac-icon-interactive:focus-visible .zodiac-icon-glyphs {
+  transform: scale(1.03) rotate(-1deg);
+}
+
+.zodiac-icon-shimmer {
+  animation: zodiac-constellation-shimmer 5s ease-in-out infinite;
+}
+
+@keyframes zodiac-constellation-shimmer {
+  0%, 100% {
+    opacity: 0.92;
+    filter: drop-shadow(0 0 6px var(--zodiac-glow, rgba(245, 240, 230, 0.12)));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(245, 240, 230, 0.22)));
+  }
+}
+
+.zodiac-wheel-btn {
+  transition:
+    transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.45s ease,
+    border-color 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.zodiac-element-fire { --zodiac-accent: var(--zodiac-fire); }
+.zodiac-element-earth { --zodiac-accent: var(--zodiac-earth); }
+.zodiac-element-air { --zodiac-accent: var(--zodiac-air); }
+.zodiac-element-water { --zodiac-accent: var(--zodiac-water); }

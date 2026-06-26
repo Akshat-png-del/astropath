@@ -59,7 +59,7 @@ export function AuthForm() {
           </div>
           <h2 className="font-display text-2xl text-white/80">Accounts Coming Soon</h2>
           <p className="text-sm text-white/35 mt-3 leading-relaxed">
-            Firebase sign-in isn&apos;t configured for this environment yet. Your cosmic
+            Firebase sign-in isn&apos;t configured for this environment yet. Your astrology
             reading works fully without an account.
           </p>
         </div>

@@ -35,7 +35,7 @@ export function SiteFooter({ className = "" }: SiteFooterProps) {
         <p className="text-[10px] text-white/20 tracking-[0.35em] uppercase text-center">
           made by the universe itself
         </p>
-        <p className="text-[10px] text-white/15 text-center">
+        <p className="text-[10px] text-white/15 text-center" suppressHydrationWarning>
           © {new Date().getFullYear()} {APP_NAME}. Guidance, not certainty.
         </p>
       </div>

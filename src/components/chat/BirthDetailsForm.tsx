@@ -21,7 +21,7 @@ export function BirthDetailsFormComponent({ onSubmit, isLoading }: { onSubmit: (
 
   return (
     <GlassCard glow className="p-6 max-w-md mx-auto">
-      <h3 className="font-display text-lg text-white/70 mb-1">Your Cosmic Coordinates</h3>
+      <h3 className="font-display text-lg text-white/70 mb-1">Your birth details</h3>
       <p className="text-xs text-white/25 mb-2">Example: {BIRTH_FULL_EXAMPLE}</p>
       <p className="text-[11px] text-white/20 mb-6">In chat you can paste the same format in one message — no form needed.</p>
       <form onSubmit={(e) => { e.preventDefault(); onSubmit(form); }} className="space-y-4">

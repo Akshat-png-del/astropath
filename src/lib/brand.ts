@@ -3,7 +3,12 @@ import type { Metadata } from "next";
 /** App branding — single source of truth */
 export const APP_NAME = "AstroPath";
 export const APP_DESCRIPTION = "The universe reveals more when it knows you.";
-export const APP_TAGLINE = "Your Personal Cosmic Guide";
+export const APP_TAGLINE = "Your Personal Astrology Guide";
+
+/** Display name for the mid-tier paid plan (internal id remains `cosmic`) */
+export const STELLAR_PLAN_NAME = "Stellar";
+export const ORACLE_PLAN_NAME = "Oracle";
+export const PAID_PLANS_LABEL = `${STELLAR_PLAN_NAME} & ${ORACLE_PLAN_NAME}`;
 
 export function reportTitleFor(name: string): string {
   return `${name}'s ${APP_NAME}`;
