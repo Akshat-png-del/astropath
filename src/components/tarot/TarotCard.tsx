@@ -80,7 +80,7 @@ export function TarotCard({
             )}
           >
             <TarotBackPattern />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-black/30 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-silver/10 via-transparent to-black/30 pointer-events-none" />
             {selected && selectionOrder !== undefined && (
               <span className="absolute -top-1.5 -right-1.5 z-10 w-5 h-5 rounded-full bg-gradient-to-br from-[#f0d78c] to-[#9a7b2a] text-[#1a0c18] text-[10px] font-bold flex items-center justify-center shadow-lg border border-[#f0d78c]/50">
                 {selectionOrder}
@@ -105,7 +105,7 @@ export function TarotCard({
                 className="absolute inset-0 opacity-[0.35] mix-blend-multiply pointer-events-none tarot-parchment-noise"
                 aria-hidden
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/15 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-silver/20 via-transparent to-black/15 pointer-events-none" />
 
               {/* Top numeral */}
               <div className="absolute top-[8%] left-0 right-0 flex justify-center">

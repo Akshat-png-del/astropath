@@ -5,7 +5,9 @@ import { TarotCardsBackground } from "@/components/cosmic/TarotCardsBackground";
 import { MouseGlow } from "@/components/cosmic/MouseGlow";
 import { FloatingConstellations } from "@/components/cosmic/ZodiacWheel";
 import { AdSenseScript } from "@/components/ads/AdSenseScript";
-import { jsonLd, siteMetadata } from "@/lib/brand";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
+import { siteMetadata } from "@/lib/brand";
 import "./globals.css";
 import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 
@@ -29,10 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased overflow-x-hidden`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <JsonLdScript data={[organizationJsonLd(), websiteJsonLd()]} />
       </head>
       <body className="min-h-full min-h-dvh flex flex-col cosmic-gradient overflow-x-hidden">
         <Starfield />

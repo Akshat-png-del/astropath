@@ -1,24 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #ffffff;
-  --charcoal: #111111;
-  --charcoal-light: #1a1a1a;
-  --silver: #c0c0c0;
-  --silver-dim: #8a8a8a;
-  --silver-glow: rgba(192, 192, 192, 0.15);
-  --moon-glow: rgba(255, 255, 255, 0.06);
-  --glass: rgba(17, 17, 17, 0.6);
-  --glass-border: rgba(192, 192, 192, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --background: #0a0a0e;
+  --foreground: #e8e8ee;
+  --charcoal: #131318;
+  --charcoal-light: #1c1c22;
+  --silver-bright: #f4f4f8;
+  --silver: #e4e4ea;
+  --silver-dim: #c8c8d2;
+  --silver-muted: #a8a8b4;
+  --silver-faint: #888894;
+  --silver-glow: rgba(232, 232, 240, 0.12);
+  --moon-glow: rgba(232, 232, 240, 0.05);
+  --glass: rgba(14, 14, 18, 0.8);
+  --glass-border: rgba(200, 200, 210, 0.12);
+  --glass-highlight: rgba(240, 240, 248, 0.06);
+  --btn-border: rgba(240, 240, 248, 0.5);
+  --btn-border-hover: rgba(252, 252, 254, 0.72);
+  --btn-primary: #f2f2f6;
+  --btn-primary-hover: #fcfcfe;
+  --btn-primary-fg: #0a0a0c;
+  --btn-secondary-bg: rgba(242, 242, 248, 0.16);
+  --btn-secondary-hover: rgba(252, 252, 254, 0.26);
+  --btn-secondary-fg: #f0f0f4;
+  --btn-ghost-fg: #d4d4dc;
+  --btn-ghost-hover-fg: #fafafc;
+  --btn-ghost-hover-bg: rgba(242, 242, 248, 0.12);
+  --btn-focus-ring: rgba(240, 240, 248, 0.55);
   /* Zodiac / celestial design tokens */
-  --zodiac-ivory: #f5f0e6;
-  --zodiac-gold: #d4a053;
-  --zodiac-fire: #d4a053;
+  --zodiac-ivory: #e8e4dc;
+  --zodiac-gold: #c9a227;
+  --zodiac-fire: #c9945a;
   --zodiac-earth: #a8845a;
-  --zodiac-air: #9eb4c9;
-  --zodiac-water: #7a9ea8;
+  --zodiac-air: #8fa8bc;
+  --zodiac-water: #6d929c;
 }
 
 @theme inline {
@@ -26,7 +41,14 @@
   --color-foreground: var(--foreground);
   --color-charcoal: var(--charcoal);
   --color-charcoal-light: var(--charcoal-light);
+  --color-silver-bright: var(--silver-bright);
   --color-silver: var(--silver);
+  --color-silver-dim: var(--silver-dim);
+  --color-silver-muted: var(--silver-muted);
+  --color-silver-faint: var(--silver-faint);
+  --color-btn: var(--btn-primary);
+  --color-btn-hover: var(--btn-primary-hover);
+  --color-btn-fg: var(--btn-primary-fg);
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-cormorant);
   --font-mono: var(--font-geist-mono);
@@ -34,7 +56,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(192, 192, 192, 0.15) transparent;
+  scrollbar-color: rgba(196, 196, 204, 0.18) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -42,7 +64,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(192, 192, 192, 0.15);
+  background: rgba(196, 196, 204, 0.18);
   border-radius: 2px;
 }
 
@@ -60,20 +82,21 @@ body {
 
 .cosmic-gradient {
   background:
-    radial-gradient(ellipse 80% 60% at 50% -30%, rgba(192, 192, 192, 0.04), transparent),
-    radial-gradient(ellipse 50% 40% at 80% 90%, rgba(255, 255, 255, 0.02), transparent),
-    #050505;
+    radial-gradient(ellipse 80% 60% at 50% -30%, rgba(240, 240, 248, 0.05), transparent),
+    radial-gradient(ellipse 50% 40% at 80% 90%, rgba(200, 200, 210, 0.032), transparent),
+    linear-gradient(rgba(8, 8, 12, 0.16), rgba(8, 8, 12, 0.16)),
+    var(--background);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 50%, #8a8a8a 100%);
+  background: linear-gradient(135deg, #f4f4f8 0%, #e4e4ea 45%, #c8c8d2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-silver {
-  background: linear-gradient(180deg, #ffffff, #c0c0c0);
+  background: linear-gradient(180deg, #f4f4f8, #e0e0e8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -94,12 +117,158 @@ body {
 }
 
 .glass-card-hover:hover {
-  border-color: rgba(192, 192, 192, 0.15);
+  border-color: rgba(210, 210, 218, 0.16);
   box-shadow:
     0 16px 48px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(192, 192, 192, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 40px rgba(240, 240, 248, 0.03),
+    inset 0 1px 0 rgba(240, 240, 248, 0.06);
   transform: translateY(-2px);
+}
+
+/* Unified button & segment controls — bright silver / white palette */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: normal;
+  border-radius: 9999px;
+  border: 1px solid var(--btn-border);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--btn-focus-ring);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary);
+  color: var(--btn-primary-fg);
+  border-color: var(--btn-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover);
+  border-color: var(--btn-border-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 6px 22px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-fg);
+  border-color: var(--btn-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+  border-color: var(--btn-border-hover);
+  color: var(--btn-primary-fg);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--btn-ghost-fg);
+  border-color: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--btn-ghost-hover-bg);
+  color: var(--btn-ghost-hover-fg);
+  border-color: var(--btn-border);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  gap: 0.5rem;
+}
+
+.btn-md {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  gap: 0.625rem;
+}
+
+.btn-segment {
+  border-radius: 0.75rem;
+}
+
+.btn-chip {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1rem;
+  gap: 0.375rem;
+  border-radius: 9999px;
+}
+
+.btn-segment-block {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  white-space: normal;
+}
+
+.btn-icon {
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.btn-text {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--btn-ghost-fg);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.btn-text:hover:not(:disabled) {
+  color: var(--btn-ghost-hover-fg);
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.btn-active {
+  background-color: var(--btn-primary-hover);
+  color: var(--btn-primary-fg);
+  border-color: var(--btn-border-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 4px 18px rgba(0, 0, 0, 0.16);
 }
 
 .glow-orb {
@@ -207,39 +376,38 @@ body {
   }
 }
 
-/* Hero headline — explicit RGBA for mobile Safari (avoids oklab fallback bugs) */
+/* Hero headline — silver tones for mobile Safari */
 .hero-headline {
   position: relative;
   z-index: 20;
   isolation: isolate;
   overflow: visible;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(244, 244, 248, 0.96);
 }
 
 .hero-headline-word {
-  color: rgba(255, 255, 255, 0.92);
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+  color: rgba(244, 244, 248, 0.96);
+  -webkit-text-fill-color: rgba(244, 244, 248, 0.96);
 }
 
 .ad-slot {
   min-height: 90px;
 }
 
-/* Headline accent — glow pulse only (no transparent text fill) */
 .headline-shimmer {
-  color: rgba(255, 255, 255, 0.95);
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.95);
+  color: rgba(252, 252, 254, 0.98);
+  -webkit-text-fill-color: rgba(252, 252, 254, 0.98);
   animation: headline-glow 4.5s ease-in-out infinite;
 }
 
 @keyframes headline-glow {
   0%, 100% {
-    opacity: 0.88;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.12);
+    opacity: 0.92;
+    text-shadow: 0 0 20px rgba(240, 240, 248, 0.2);
   }
   50% {
     opacity: 1;
-    text-shadow: 0 0 36px rgba(255, 255, 255, 0.28);
+    text-shadow: 0 0 36px rgba(240, 240, 248, 0.32);
   }
 }
 
@@ -254,7 +422,7 @@ body {
     0 2px 4px rgba(0, 0, 0, 0.4),
     0 8px 24px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(201, 162, 39, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(196, 196, 204, 0.08);
 }
 
 .tarot-card-selected {
@@ -295,7 +463,7 @@ body {
 .zodiac-icon-interactive:hover,
 .zodiac-icon-interactive:focus-visible {
   transform: scale(1.08);
-  filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(212, 160, 83, 0.35)));
+  filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(201, 162, 39, 0.35)));
 }
 
 .zodiac-icon-interactive:hover .zodiac-icon-glyphs,
@@ -310,11 +478,11 @@ body {
 @keyframes zodiac-constellation-shimmer {
   0%, 100% {
     opacity: 0.92;
-    filter: drop-shadow(0 0 6px var(--zodiac-glow, rgba(245, 240, 230, 0.12)));
+    filter: drop-shadow(0 0 6px var(--zodiac-glow, rgba(232, 228, 220, 0.12)));
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(245, 240, 230, 0.22)));
+    filter: drop-shadow(0 0 14px var(--zodiac-glow, rgba(232, 228, 220, 0.22)));
   }
 }
 

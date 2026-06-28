@@ -49,15 +49,15 @@ export function FreePlanAd({
       )}
       aria-label="Advertisement"
     >
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-1.5 border-b border-white/[0.04]">
-          <span className="text-[9px] tracking-[0.2em] uppercase text-white/20">
+      <div className="rounded-xl border border-silver/10 bg-silver/5 overflow-hidden">
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-silver/10">
+          <span className="text-[9px] tracking-[0.2em] uppercase text-silver-faint/90">
             Sponsored
           </span>
           {showUpgradeHint && (
             <Link
               href="/pricing"
-              className="text-[10px] text-white/30 hover:text-white/50 transition-colors"
+              className="text-[10px] text-silver-muted/80 hover:text-silver-dim/80 transition-colors"
             >
               Go ad-free with {STELLAR_PLAN_NAME} →
             </Link>

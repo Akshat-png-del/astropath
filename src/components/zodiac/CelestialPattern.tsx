@@ -69,7 +69,7 @@ export function CelestialEmblem({ size = 48, className }: { size?: number; class
       viewBox="0 0 64 64"
       width={size}
       height={size}
-      className={cn("text-white/35", className)}
+      className={cn("text-silver-muted/85", className)}
       aria-hidden
     >
       <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth={1} opacity={0.25} fill="none" />

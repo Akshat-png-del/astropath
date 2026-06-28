@@ -28,8 +28,8 @@ export function TarotShuffleStep({
       className="max-w-lg mx-auto text-center space-y-8"
     >
       <div>
-        <h2 className="font-display text-2xl text-white/80 mb-2">Shuffling the cards</h2>
-        <p className="text-sm text-white/35 max-w-md mx-auto">
+        <h2 className="font-display text-2xl text-silver/90 mb-2">Shuffling the cards</h2>
+        <p className="text-sm text-silver-muted/85 max-w-md mx-auto">
           The cards must be shuffled by you before the draw. This step governs how they are arranged.
           Tap shuffle once with your question in mind, then draw your cards.
         </p>
@@ -59,7 +59,7 @@ export function TarotShuffleStep({
           <TarotCard face="back" size="md" className="!w-32 relative z-10" />
         </motion.div>
         <p className="text-xs text-[#c9a227]/50 mt-6 font-display tracking-wider">Tap to shuffle</p>
-        <p className="text-[10px] text-white/20 mt-1">
+        <p className="text-[10px] text-silver-faint/90 mt-1">
           {shuffleCount} / {MIN_SHUFFLES} shuffles
         </p>
       </motion.button>

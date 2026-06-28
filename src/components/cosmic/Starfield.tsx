@@ -24,7 +24,7 @@ export function Starfield() {
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           r: Math.random() * 1.2 + 0.2,
-          a: Math.random() * 0.5 + 0.1,
+          a: Math.random() * 0.38 + 0.08,
           speed: Math.random() * 0.15 + 0.02,
           tw: Math.random() * Math.PI * 2,
         });
@@ -38,10 +38,10 @@ export function Starfield() {
       for (const s of stars) {
         s.y -= s.speed;
         if (s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
-        const alpha = s.a * (0.6 + 0.4 * Math.sin(t * 0.02 + s.tw));
+        const alpha = s.a * (0.55 + 0.35 * Math.sin(t * 0.02 + s.tw));
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220, 220, 230, ${alpha})`;
+        ctx.fillStyle = `rgba(200, 200, 210, ${alpha})`;
         ctx.fill();
       }
       animationId = requestAnimationFrame(draw);
@@ -61,15 +61,15 @@ export function AuroraBackground() {
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -20 }} aria-hidden="true">
       <div
         className="absolute -top-1/2 left-1/4 w-full max-w-xl sm:max-w-2xl md:max-w-3xl aspect-square rounded-full animate-aurora"
-        style={{ background: "radial-gradient(circle, rgba(192,192,192,0.04) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(192,192,192,0.028) 0%, transparent 70%)" }}
       />
       <div
         className="absolute top-1/3 -right-1/4 w-full max-w-md sm:max-w-lg md:max-w-xl aspect-square rounded-full animate-aurora"
-        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)", animationDelay: "4s" }}
+        style={{ background: "radial-gradient(circle, rgba(196,196,204,0.02) 0%, transparent 70%)", animationDelay: "4s" }}
       />
       <div
         className="absolute bottom-0 left-1/3 w-full max-w-2xl sm:max-w-3xl md:max-w-4xl aspect-[7/4] rounded-full animate-aurora"
-        style={{ background: "radial-gradient(ellipse, rgba(100,100,110,0.05) 0%, transparent 70%)", animationDelay: "8s" }}
+        style={{ background: "radial-gradient(ellipse, rgba(100,100,110,0.035) 0%, transparent 70%)", animationDelay: "8s" }}
       />
     </div>
   );
@@ -130,5 +130,5 @@ export function CosmicParticles() {
     return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", resize); };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-60" style={{ zIndex: -25 }} aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-45" style={{ zIndex: -25 }} aria-hidden="true" />;
 }

@@ -1,0 +1,36 @@
+/** Public routes included in sitemap and SEO tooling */
+export const PUBLIC_ROUTES = [
+  { path: "/", priority: 1.0, changeFrequency: "weekly" as const },
+  { path: "/learn", priority: 0.95, changeFrequency: "weekly" as const },
+  { path: "/blog", priority: 0.9, changeFrequency: "weekly" as const },
+  { path: "/guides", priority: 0.85, changeFrequency: "weekly" as const },
+  { path: "/about", priority: 0.8, changeFrequency: "monthly" as const },
+  { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
+  { path: "/privacy", priority: 0.5, changeFrequency: "monthly" as const },
+  { path: "/terms", priority: 0.5, changeFrequency: "monthly" as const },
+  { path: "/cookies", priority: 0.5, changeFrequency: "monthly" as const },
+  { path: "/disclaimer", priority: 0.5, changeFrequency: "monthly" as const },
+  { path: "/faq", priority: 0.75, changeFrequency: "monthly" as const },
+  { path: "/zodiac", priority: 0.85, changeFrequency: "monthly" as const },
+  { path: "/planets", priority: 0.88, changeFrequency: "monthly" as const },
+  { path: "/houses", priority: 0.88, changeFrequency: "monthly" as const },
+  { path: "/tarot", priority: 0.85, changeFrequency: "weekly" as const },
+  { path: "/tarot/reading", priority: 0.8, changeFrequency: "weekly" as const },
+  { path: "/dashboard", priority: 0.7, changeFrequency: "weekly" as const },
+  { path: "/history", priority: 0.65, changeFrequency: "weekly" as const },
+  { path: "/favorites", priority: 0.6, changeFrequency: "weekly" as const },
+  { path: "/pricing", priority: 0.8, changeFrequency: "monthly" as const },
+  { path: "/auth", priority: 0.4, changeFrequency: "monthly" as const },
+  { path: "/account", priority: 0.4, changeFrequency: "monthly" as const },
+] as const;
+
+export const EDUCATION_CATEGORY_ROUTES = [
+  "astrology-basics",
+  "zodiac-signs",
+  "birth-charts",
+  "planets",
+  "houses",
+  "aspects",
+  "tarot",
+  "compatibility",
+] as const;

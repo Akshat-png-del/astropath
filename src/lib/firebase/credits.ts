@@ -274,7 +274,8 @@ function resolveTierFromSnapshots(
 
 export async function consumeCredits(
   uid: string,
-  action: CreditAction
+  action: CreditAction,
+  creditAmount?: number
 ): Promise<{ ok: boolean; credits?: number; error?: string }> {
   if (isDevTestUser(uid)) {
     return { ok: true, credits: DEV_TEST_CREDITS };
@@ -286,7 +287,7 @@ export async function consumeCredits(
 
   const userRef = doc(getFirebaseDb(), COLLECTIONS.USERS, uid);
   const subRef = doc(getFirebaseDb(), COLLECTIONS.SUBSCRIPTIONS, uid);
-  const cost = CREDIT_COSTS[action];
+  const cost = creditAmount ?? CREDIT_COSTS[action];
 
   try {
     const remaining = await runTransaction(getFirebaseDb(), async (tx) => {

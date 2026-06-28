@@ -16,6 +16,7 @@ export interface ConversationMessage {
   sentiment?: "positive" | "neutral" | "negative" | "mixed";
   topicsDiscussed?: string[];
   isStreaming?: boolean;
+  isFailed?: boolean;
 }
 
 export interface UserUsage {

@@ -25,7 +25,7 @@ export function confidenceLabel(confidence: number): string {
 }
 
 export function confidenceColor(confidence: number): string {
-  if (confidence >= 0.85) return "text-white/60";
-  if (confidence >= 0.65) return "text-white/40";
-  return "text-white/30";
+  if (confidence >= 0.85) return "text-silver-dim";
+  if (confidence >= 0.65) return "text-silver-muted";
+  return "text-silver-faint";
 }

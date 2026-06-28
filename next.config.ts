@@ -7,6 +7,9 @@ const nextConfig = {
       fullUrl: false,
     },
   },
+  async redirects() {
+    return [{ source: "/chat", destination: "/tarot/reading", permanent: true }];
+  },
 };
 
 export default nextConfig;

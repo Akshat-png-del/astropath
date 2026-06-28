@@ -3,7 +3,8 @@ import { pageMetadata } from "@/lib/brand";
 
 export const metadata: Metadata = pageMetadata(
   "Tarot",
-  "Free tarot readings on AstroPath — guided by IRA through the Major Arcana."
+  "Tarot card meanings and free readings on AstroPath — Major Arcana guide and interactive spreads.",
+  "/tarot"
 );
 
 export default function TarotLayout({ children }: { children: React.ReactNode }) {

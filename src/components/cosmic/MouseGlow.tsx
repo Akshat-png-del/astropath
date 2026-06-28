@@ -31,7 +31,7 @@ export function MouseGlow() {
         top: pos.y - 200,
         width: 400,
         height: 400,
-        background: "radial-gradient(circle, rgba(192,192,192,0.04) 0%, transparent 70%)",
+        background: "radial-gradient(circle, rgba(192,192,192,0.028) 0%, transparent 70%)",
       }}
       aria-hidden="true"
     />

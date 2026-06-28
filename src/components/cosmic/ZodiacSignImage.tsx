@@ -26,7 +26,7 @@ export function ZodiacSignImage({
   if (!isKnownSign(sign)) {
     return (
       <span
-        className={cn("inline-flex items-center justify-center rounded-full border border-white/10 text-white/30", className)}
+        className={cn("inline-flex items-center justify-center rounded-full border border-silver/20 text-silver-muted/80", className)}
         style={{ width: size, height: size, fontSize: size * 0.35 }}
       >
         ·

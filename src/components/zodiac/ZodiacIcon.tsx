@@ -374,7 +374,7 @@ export function ZodiacIconPair({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <ZodiacIcon sign={sign1} size={size} shimmer />
-      <span className="text-white/20 text-xs font-display">×</span>
+      <span className="text-silver-faint/90 text-xs font-display">×</span>
       <ZodiacIcon sign={sign2} size={size} shimmer />
     </div>
   );

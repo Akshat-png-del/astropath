@@ -174,10 +174,7 @@ export function useBilling(): BillingState {
     monthlyForecastUnlocked,
     compatibilityDeepDive: features.compatibilityDeepDive,
     loading,
-    canChat:
-      devBypass ||
-      paidUnlimitedChat ||
-      localRemaining >= CREDIT_COSTS.chatMessage,
+    canChat: false,
     canGenerateReport:
       devBypass ||
       features.priorityReports ||

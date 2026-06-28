@@ -16,6 +16,7 @@ const QUESTION_EXAMPLES: Partial<Record<string, string>> = {
 interface TarotQuestionStepProps {
   spread: TarotSpread;
   question: string;
+  costLabel?: string;
   onQuestionChange: (q: string) => void;
   onContinue: () => void;
   onBack: () => void;
@@ -24,6 +25,7 @@ interface TarotQuestionStepProps {
 export function TarotQuestionStep({
   spread,
   question,
+  costLabel,
   onQuestionChange,
   onContinue,
   onBack,
@@ -38,13 +40,18 @@ export function TarotQuestionStep({
       className="max-w-lg mx-auto space-y-6"
     >
       <div className="text-center">
-        <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-2">{spread.name}</p>
-        <h2 className="font-display text-2xl text-white/80 mb-2">Focus your question</h2>
-        <p className="text-sm text-white/35">
+        <p className="text-[10px] tracking-[0.3em] uppercase text-silver-faint mb-2">{spread.name}</p>
+        <h2 className="font-display text-2xl text-silver/90 mb-2">Focus your question</h2>
+        <p className="text-sm text-silver-muted/85">
           {needsQuestion
             ? "Ask one clear question — love, career, yes/no, or timing. IRA will read the cards against what you actually mean."
             : "Take a breath. Today's card will reflect the energy around you right now."}
         </p>
+        {costLabel && (
+          <p className="text-[11px] text-silver-muted/80 mt-3">
+            Cost: {costLabel} · charged only after your reading completes
+          </p>
+        )}
       </div>
       {needsQuestion ? (
         <>
@@ -53,14 +60,14 @@ export function TarotQuestionStep({
             onChange={(e) => onQuestionChange(e.target.value)}
             placeholder={placeholder}
             rows={4}
-            className="w-full rounded-2xl bg-white/[0.03] border border-white/[0.08] px-4 py-3 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/20 resize-none"
+            className="w-full rounded-2xl bg-silver/5 border border-silver/15 px-4 py-3 text-sm text-silver/80 placeholder:text-silver-faint/90 focus:outline-none focus:border-silver/30 resize-none"
           />
-          <p className="text-[11px] text-white/20 text-center">
+          <p className="text-[11px] text-silver-faint/90 text-center">
             Tip: &quot;Will we get back together?&quot; · &quot;Is this the right career move?&quot; · &quot;When will things improve?&quot;
           </p>
         </>
       ) : (
-        <div className="glass-card rounded-2xl p-6 text-center text-sm text-white/40">
+        <div className="glass-card rounded-2xl p-6 text-center text-sm text-silver-muted/90">
           No question needed — your daily message awaits after you shuffle and draw.
         </div>
       )}

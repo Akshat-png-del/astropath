@@ -11,12 +11,12 @@ export function ConfidenceBadge({ confidence, reasoning }: { confidence: number;
       <span className={`text-xs ${confidenceColor(confidence)}`}>{confidenceLabel(confidence)}</span>
       {reasoning && (
         <>
-          <button onClick={() => setShow(!show)} className="text-white/20 hover:text-white/40" aria-label="Why?">
+          <button onClick={() => setShow(!show)} className="text-silver-faint/90 hover:text-silver-muted/90" aria-label="Why?">
             <Info className="w-3 h-3" />
           </button>
           {show && (
-            <div className="absolute top-full left-0 mt-2 z-50 w-64 p-3 rounded-xl glass-card text-xs text-white/40">
-              <p className="text-white/50 mb-1">Why this insight?</p>
+            <div className="absolute top-full left-0 mt-2 z-50 w-64 p-3 rounded-xl glass-card text-xs text-silver-muted/90">
+              <p className="text-silver-dim/80 mb-1">Why this insight?</p>
               <p>{reasoning}</p>
             </div>
           )}

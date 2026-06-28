@@ -13,13 +13,13 @@ export interface CardArt {
 }
 
 export const CARD_ART: Record<number, CardArt> = {
-  0: { symbol: "☀", motif: "cliff & dog", parchment: "#f0e6d2", gold: "#c9a227", ink: "#3d2914" },
+  0: { symbol: "☉", motif: "cliff & dog", parchment: "#f0e6d2", gold: "#c9a227", ink: "#3d2914" },
   1: { symbol: "∞", motif: "wand & table", parchment: "#efe8dc", gold: "#d4af37", ink: "#2a1f3d" },
   2: { symbol: "☽", motif: "veil & pillars", parchment: "#e8e4f0", gold: "#b8a9c9", ink: "#1a1530" },
   3: { symbol: "♀", motif: "crown & wheat", parchment: "#f2ebe0", gold: "#c9a227", ink: "#3d2e1a" },
   4: { symbol: "♔", motif: "throne & ram", parchment: "#ebe4d8", gold: "#b8860b", ink: "#2c1810" },
   5: { symbol: "✠", motif: "keys & throne", parchment: "#ede8e0", gold: "#c9a227", ink: "#2a2218" },
-  6: { symbol: "♥", motif: "angel & lovers", parchment: "#f5ebe8", gold: "#c9a227", ink: "#3d2020" },
+  6: { symbol: "♀", motif: "angel & lovers", parchment: "#f5ebe8", gold: "#c9a227", ink: "#3d2020" },
   7: { symbol: "☤", motif: "chariot & sphinx", parchment: "#e8eef5", gold: "#8fa4c4", ink: "#1a2840" },
   8: { symbol: "∞", motif: "lion & maiden", parchment: "#f0ebe5", gold: "#c9a227", ink: "#3d3018" },
   9: { symbol: "✧", motif: "lantern & peak", parchment: "#e8eaf0", gold: "#9aa8c4", ink: "#1e2438" },

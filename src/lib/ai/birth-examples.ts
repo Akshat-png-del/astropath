@@ -37,4 +37,4 @@ export const CHAT_EXAMPLE_CHIPS = [
   },
 ] as const;
 
-export const INPUT_PLACEHOLDER = "Love, career, marriage… ask anything";
+export const INPUT_PLACEHOLDER = "Ask the stars — love, career, timing…";

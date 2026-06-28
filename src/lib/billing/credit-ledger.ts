@@ -33,6 +33,20 @@ export function chargeCredits(
   return consumeAnonymousCredits(CREDIT_COSTS[action], message, type, signedIn);
 }
 
+export function chargeCreditAmount(
+  amount: number,
+  message: string,
+  type: CreditActivityType = "chat",
+  signedIn = false
+): { ok: boolean; remaining: number } {
+  if (amount <= 0) return { ok: true, remaining: getAnonymousCredits() };
+  return consumeAnonymousCredits(amount, message, type, signedIn);
+}
+
+export function canAffordAmount(amount: number): boolean {
+  return getAnonymousCredits() >= amount;
+}
+
 export function canAfford(action: keyof typeof CREDIT_COSTS): boolean {
   return hasAnonymousCreditsFor(action);
 }

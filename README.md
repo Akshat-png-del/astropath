@@ -1,6 +1,6 @@
 # AstroPath
 
-A full-stack AI-powered astrology platform that feels like a highly personalized AI astrologer. Users engage in a natural conversation before receiving deeply personalized cosmic guidance.
+A full-stack astrology and self-discovery platform with personalized cosmic guidance. Users engage in a natural conversation before receiving deeply personalized readings.
 
 > **"The universe reveals more when it knows you."**
 
@@ -12,7 +12,7 @@ A full-stack AI-powered astrology platform that feels like a highly personalized
 - **Why This Insight?** — Transparent reasoning with confidence indicators
 - **Daily Cosmic Guidance** — Personalized daily insights per user
 - **Session Memory** — Returning users feel remembered
-- **AI Follow-up Chat** — Continue asking questions after your report
+- **Follow-up Guidance** — Continue asking questions after your report
 
 ## Tech Stack
 
@@ -21,7 +21,7 @@ A full-stack AI-powered astrology platform that feels like a highly personalized
 | Frontend | Next.js 15+ (App Router), TypeScript, Tailwind CSS |
 | State | Zustand + React Context |
 | Backend | Firebase (Auth, Firestore, Functions, Storage, Hosting, Analytics) |
-| AI | OpenAI API with streaming responses |
+| Interpretation | OpenAI API with streaming responses (internal) |
 | Astrology | astronomy-engine for birth chart calculations |
 | RAG | Curated astrology knowledge base |
 
@@ -31,22 +31,19 @@ A full-stack AI-powered astrology platform that feels like a highly personalized
 astropath/
 ├── src/
 │   ├── app/                    # Next.js App Router pages & API routes
-│   │   ├── api/chat/           # Streaming AI chat + report generation
 │   │   ├── api/chart/          # Birth chart calculations
 │   │   ├── api/daily-insight/  # Daily guidance generation
 │   │   ├── api/geocode/        # Birth location geocoding
 │   │   ├── auth/               # Authentication page
-│   │   ├── chat/               # AI chat interface
-│   │   └── dashboard/          # Cosmic report & daily insights
+│   │   ├── dashboard/          # Cosmic report & daily insights
 │   ├── components/
 │   │   ├── auth/               # Auth forms
-│   │   ├── chat/               # Chat UI, birth details form
 │   │   ├── cosmic/             # Starfield, glass cards, animations
 │   │   └── report/             # Report display components
 │   ├── contexts/               # Auth context provider
 │   ├── hooks/                  # Firestore real-time listeners
 │   ├── lib/
-│   │   ├── ai/                 # Prompts, RAG knowledge base
+│   │   ├── ai/                 # Prompts, RAG knowledge base (internal)
 │   │   ├── astrology/          # Chart calculations
 │   │   └── firebase/           # Firebase config & services
 │   ├── stores/                 # Zustand state management
@@ -64,8 +61,8 @@ astropath/
 | Collection | Purpose |
 |-----------|---------|
 | `users` | User profiles and onboarding state |
-| `conversations` | Chat sessions with phase tracking |
-| `messages` | Chat messages with insights & sentiment |
+| `conversations` | Guidance sessions with phase tracking |
+| `messages` | Session messages with insights & sentiment |
 | `birthProfiles` | Birth details and chart data |
 | `cosmicReports` | Generated personalized reports |
 | `dailyInsights` | Per-user daily guidance |
@@ -132,16 +129,14 @@ Firebase project IDs cannot be renamed. The global ID `astropath` is already tak
 See `.env.example` for all required variables:
 
 - `NEXT_PUBLIC_FIREBASE_*` — Firebase client configuration
-- `OPENAI_API_KEY` — OpenAI API key for chat and report generation
+- `OPENAI_API_KEY` — OpenAI API key for guidance and report generation (internal)
 
 ## User Journey
 
 1. **Landing Page** — Premium cosmic aesthetic with curiosity hook
-2. **AI Chat** — Warm greeting → adaptive questions → rapport building
-3. **Birth Details** — Requested after sufficient conversation
-4. **Report Generation** — Merges conversation + chart + RAG knowledge
-5. **Dashboard** — Cosmic DNA, curiosity cards, daily guidance
-6. **Follow-up** — Continue chatting with session memory
+2. **Tarot Reading** — Choose a spread, ask a question, draw cards
+3. **Dashboard** — Daily horoscope, streaks, saved readings, cosmic insights
+4. **Learn** — Birth-chart guides, zodiac knowledge bases, tarot meanings
 
 ## Design Principles
 

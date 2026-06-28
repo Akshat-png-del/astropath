@@ -31,7 +31,7 @@ export const ELEMENT_TOKENS: Record<
   Water: {
     color: "#7a9ea8",
     glow: "rgba(122, 158, 168, 0.4)",
-    muted: "rgba(139, 122, 168, 0.18)",
+    muted: "rgba(122, 158, 168, 0.18)",
     label: "Water",
   },
 };

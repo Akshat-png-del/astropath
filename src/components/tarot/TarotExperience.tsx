@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { IraIntro } from "./IraIntro";
 import { TarotSpreadGrid } from "./TarotSpreadGrid";
 import { TarotQuestionStep } from "./TarotQuestionStep";
 import { TarotShuffleStep } from "./TarotShuffleStep";
 import { TarotCardPicker } from "./TarotCardPicker";
 import { TarotReadingView } from "./TarotReadingView";
+import { TarotTrustNotice } from "./TarotTrustNotice";
 import type { TarotReadingResult, TarotSpread, TarotStep } from "@/lib/tarot/types";
-import { createShuffledDeck, pickCardsFromIndices, reshuffleDeck, type ShuffledDeck } from "@/lib/tarot/deck";
+import {
+  createShuffledDeck,
+  drawDeckIndex,
+  isDrawComplete,
+  pickCardsFromIndices,
+  reshuffleDeck,
+  undoLastDraw,
+  type ShuffledDeck,
+} from "@/lib/tarot/deck";
 import { buildReading } from "@/lib/tarot/interpretation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,8 +26,72 @@ import {
   hasAnonymousTarotTrialLeft,
 } from "@/hooks/useBilling";
 import { consumeCredits } from "@/lib/firebase/credits";
+import { chargeCreditAmount } from "@/lib/billing/credit-ledger";
+import { OutOfCreditsPanel } from "@/components/billing/OutOfCreditsPanel";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
-import { CREDIT_COSTS } from "@/lib/billing/plans";
+import { CreditStatusBanner } from "@/components/billing/CreditStatusBanner";
+import {
+  resolveTarotCost,
+  canAffordTarot,
+  markTarotFreeUsage,
+  type ResolvedTarotCost,
+} from "@/lib/billing/daily-free";
+import { useRetention } from "@/hooks/useRetention";
+import { StepProgress } from "@/components/layout/StepProgress";
+
+const FLOW_STEPS = ["Welcome", "Spread", "Question", "Shuffle", "Draw", "Reading"];
+
+const STEP_INDEX: Record<TarotStep, number> = {
+  intro: 0,
+  spreads: 1,
+  question: 2,
+  shuffle: 3,
+  pick: 4,
+  reading: 5,
+};
+
+async function chargeForTarotReading(
+  userId: string | undefined,
+  spread: TarotSpread,
+  resolved: ResolvedTarotCost,
+  usesFreeCredits: boolean
+): Promise<{ ok: boolean }> {
+  if (resolved.cost === 0) {
+    markTarotFreeUsage(resolved.reason, spread.id);
+    if (resolved.reason === "anonymous-trial") {
+      incrementAnonymousTarotCount();
+      return { ok: true };
+    }
+    if (userId && (resolved.reason === "monthly-trial" || resolved.reason === "unlimited")) {
+      const result = await consumeCredits(userId, "tarotReading", 0);
+      return { ok: result.ok };
+    }
+    return { ok: true };
+  }
+
+  if (!userId) {
+    const result = chargeCreditAmount(
+      resolved.cost,
+      `${spread.name} reading`,
+      "tarot",
+      false
+    );
+    return { ok: result.ok };
+  }
+
+  if (usesFreeCredits) {
+    const result = chargeCreditAmount(
+      resolved.cost,
+      `${spread.name} reading`,
+      "tarot",
+      true
+    );
+    return { ok: result.ok };
+  }
+
+  const result = await consumeCredits(userId, "tarotReading", resolved.cost);
+  return { ok: result.ok };
+}
 
 export function TarotExperience() {
   const { user } = useAuth();
@@ -30,8 +103,25 @@ export function TarotExperience() {
   const [shuffleCount, setShuffleCount] = useState(0);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [result, setResult] = useState<TarotReadingResult | null>(null);
+  const [outOfCreditsOpen, setOutOfCreditsOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [upgradeReason, setUpgradeReason] = useState<"tarot" | "signin" | "credits">("tarot");
+  const [upgradeReason, setUpgradeReason] = useState<"credits" | "signin">("credits");
+  const [chargeError, setChargeError] = useState<string | null>(null);
+  const [readingSaved, setReadingSaved] = useState(false);
+  const { logHistory, recordTarot, saveReading } = useRetention();
+
+  const costContext = useMemo(
+    () => ({
+      spreadId: spread?.id ?? "",
+      unlimitedTarot: billing.unlimitedTarot,
+      tarotTrialLeft: billing.tarotTrialLeft && !!user?.uid,
+      anonymousTrialLeft: !user?.uid && hasAnonymousTarotTrialLeft(),
+      credits: billing.credits,
+    }),
+    [spread?.id, billing.unlimitedTarot, billing.tarotTrialLeft, billing.credits, user?.uid]
+  );
+
+  const resolvedCost = spread ? resolveTarotCost(costContext) : null;
 
   const reset = () => {
     setStep("intro");
@@ -41,91 +131,125 @@ export function TarotExperience() {
     setShuffleCount(0);
     setSelectedIndices([]);
     setResult(null);
+    setChargeError(null);
+    setReadingSaved(false);
   };
 
-  const handleSpreadSelect = (s: TarotSpread) => {
-    if (user?.uid && !billing.canTarot) {
+  const trySelectSpread = (s: TarotSpread) => {
+    const ctx = {
+      spreadId: s.id,
+      unlimitedTarot: billing.unlimitedTarot,
+      tarotTrialLeft: billing.tarotTrialLeft && !!user?.uid,
+      anonymousTrialLeft: !user?.uid && hasAnonymousTarotTrialLeft(),
+      credits: billing.credits,
+    };
+
+    if (!canAffordTarot(ctx)) {
+      if (!user?.uid && !hasAnonymousTarotTrialLeft()) {
+        setUpgradeReason("signin");
+        setUpgradeOpen(true);
+        return;
+      }
       setUpgradeReason("credits");
-      setUpgradeOpen(true);
+      setOutOfCreditsOpen(true);
       return;
     }
-    if (!user?.uid && !hasAnonymousTarotTrialLeft()) {
-      setUpgradeReason("signin");
-      setUpgradeOpen(true);
-      return;
-    }
+
     setSpread(s);
     setStep("question");
     setDeck(createShuffledDeck());
     setShuffleCount(0);
     setSelectedIndices([]);
+    setChargeError(null);
   };
 
   const handleShuffle = () => {
     setDeck((d) => reshuffleDeck(d));
     setShuffleCount((c) => c + 1);
+    setSelectedIndices([]);
   };
 
-  const handleToggleCard = (index: number) => {
+  const handleSelectCard = (index: number) => {
     if (!spread) return;
-    setSelectedIndices((prev) => {
-      if (prev.includes(index)) return prev.filter((i) => i !== index);
-      if (prev.length >= spread.cardCount) return prev;
-      return [...prev, index];
-    });
+    setSelectedIndices((prev) =>
+      drawDeckIndex(prev, index, spread.cardCount, deck.cards.length)
+    );
+  };
+
+  const handleUndoLastCard = () => {
+    setSelectedIndices((prev) => undoLastDraw(prev));
   };
 
   const handleReveal = async () => {
-    if (!spread) return;
-
-    if (!user?.uid) {
-      if (!hasAnonymousTarotTrialLeft()) {
-        setUpgradeReason("signin");
-        setUpgradeOpen(true);
-        return;
-      }
-      incrementAnonymousTarotCount();
-    } else {
-      const consumed = await consumeCredits(user.uid, "tarotReading");
-      if (!consumed.ok) {
-        setUpgradeReason("credits");
-        setUpgradeOpen(true);
-        return;
-      }
-    }
+    if (!spread || !resolvedCost) return;
+    if (!isDrawComplete(selectedIndices, spread.cardCount)) return;
+    setChargeError(null);
 
     const picks = pickCardsFromIndices(deck, selectedIndices);
     const reading = buildReading(spread, question, picks);
+
+    const charged = await chargeForTarotReading(
+      user?.uid,
+      spread,
+      resolvedCost,
+      billing.usesFreeCredits
+    );
+
+    if (!charged.ok) {
+      setChargeError("Could not complete billing — your reading was not saved. No credits were deducted.");
+      setOutOfCreditsOpen(true);
+      return;
+    }
+
     setResult(reading);
     setStep("reading");
+    recordTarot();
+    logHistory({
+      type: "tarot",
+      title: `${spread.name}${question ? `: ${question.slice(0, 40)}` : ""}`,
+      summary: reading.summary.slice(0, 200),
+      payload: { spreadId: spread.id, question, cardNames: reading.cards.map((c) => c.card.name) },
+    });
   };
 
-  const trialHint = !user
-    ? billing.canTarotAnonymous
-      ? "1 free reading without sign-in"
-      : "Sign in for more readings"
-    : billing.unlimitedTarot
-      ? "Unlimited on your plan"
-      : billing.tarotTrialLeft
-        ? "1 free reading this month · then 2 credits each"
-        : `${CREDIT_COSTS.tarotReading} credits per reading`;
-
   return (
-    <div className="px-4 py-8 sm:py-12">
+    <div className="py-4 sm:py-8">
+      {outOfCreditsOpen && (
+        <OutOfCreditsPanel context="tarot" onClose={() => setOutOfCreditsOpen(false)} />
+      )}
+
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />
 
       {step !== "reading" && (
-        <p className="text-center text-[10px] text-white/25 tracking-wider uppercase mb-6">{trialHint}</p>
+        <StepProgress
+          steps={FLOW_STEPS}
+          currentIndex={STEP_INDEX[step]}
+          className="mb-10 sm:mb-12"
+        />
+      )}
+
+      {step !== "reading" && (
+        <CreditStatusBanner
+          className="mb-8"
+          spreadCostLabel={resolvedCost?.label}
+        />
+      )}
+
+      {chargeError && (
+        <p className="text-center text-xs text-amber-400/70 mb-4" role="alert">
+          {chargeError}
+        </p>
       )}
 
       {step === "intro" && <IraIntro onContinue={() => setStep("spreads")} />}
 
-      {step === "spreads" && <TarotSpreadGrid onSelect={handleSpreadSelect} />}
+      {step === "spreads" && <TarotSpreadGrid onSelect={trySelectSpread} />}
 
       {step === "question" && spread && (
         <TarotQuestionStep
           spread={spread}
           question={question}
+          costLabel={resolvedCost?.label}
           onQuestionChange={setQuestion}
           onContinue={() => setStep("shuffle")}
           onBack={() => setStep("spreads")}
@@ -136,8 +260,14 @@ export function TarotExperience() {
         <TarotShuffleStep
           shuffleCount={shuffleCount}
           onShuffle={handleShuffle}
-          onContinue={() => setStep("pick")}
-          onBack={() => setStep("question")}
+          onContinue={() => {
+            setSelectedIndices([]);
+            setStep("pick");
+          }}
+          onBack={() => {
+            setSelectedIndices([]);
+            setStep("question");
+          }}
         />
       )}
 
@@ -146,15 +276,35 @@ export function TarotExperience() {
           spread={spread}
           deck={deck}
           selectedIndices={selectedIndices}
-          onToggle={handleToggleCard}
+          costLabel={resolvedCost?.label}
+          onSelect={handleSelectCard}
+          onUndoLast={handleUndoLastCard}
           onReveal={handleReveal}
-          onBack={() => setStep("shuffle")}
+          onBack={() => {
+            setSelectedIndices([]);
+            setStep("shuffle");
+          }}
         />
       )}
 
       {step === "reading" && result && (
-        <TarotReadingView result={result} onNewReading={reset} />
+        <TarotReadingView
+          result={result}
+          onNewReading={reset}
+          saved={readingSaved}
+          onSave={() => {
+            saveReading({
+              type: "tarot",
+              title: `${result.spread.name}${result.question ? `: ${result.question.slice(0, 40)}` : ""}`,
+              summary: result.summary.slice(0, 300),
+              payload: result as unknown as Record<string, unknown>,
+            });
+            setReadingSaved(true);
+          }}
+        />
       )}
+
+      <TarotTrustNotice className="mt-14 sm:mt-16" />
     </div>
   );
 }

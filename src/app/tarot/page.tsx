@@ -1,40 +1,28 @@
-"use client";
+import type { Metadata } from "next";
+import { PillarHubPage } from "@/components/pillars/PillarHubPage";
+import { TAROT_PILLARS } from "@/content/pillars/tarot";
+import { APP_NAME, pageMetadata } from "@/lib/brand";
 
-import { TarotExperience } from "@/components/tarot/TarotExperience";
-import { PageTransition } from "@/components/cosmic/FadeIn";
-import { CosmicButton } from "@/components/cosmic/CosmicButton";
-import { CreditsBadge } from "@/components/billing/CreditsBadge";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { FreePlanAd } from "@/components/ads/FreePlanAd";
+export const metadata: Metadata = pageMetadata(
+  "Tarot Card Meanings — Major Arcana Guide",
+  `Complete Major Arcana encyclopedia on ${APP_NAME}: upright and reversed meanings, love, career, and spiritual interpretations.`,
+  "/tarot"
+);
 
-export default function TarotPage() {
-  const actions = (
-    <>
-      <CreditsBadge />
-      <CosmicButton variant="secondary" size="sm" href="/pricing">
-        Plans
-      </CosmicButton>
-      <CosmicButton variant="secondary" size="sm" href="/chat">
-        Chat
-      </CosmicButton>
-    </>
-  );
-
+export default function TarotHubPage() {
   return (
-    <PageTransition>
-      <div className="min-h-dvh flex flex-col overflow-x-hidden">
-        <PageHeader
-          icon="✦"
-          title="Tarot Reading"
-          subtitle="1 free trial · then credits or plan"
-          actions={actions}
-          mobileActions={actions}
-        />
-        <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 pb-safe-bottom">
-          <TarotExperience />
-          <FreePlanAd className="py-6" />
-        </main>
-      </div>
-    </PageTransition>
+    <PillarHubPage
+      hub="tarot"
+      articles={TAROT_PILLARS}
+      extraLinks={[
+        {
+          href: "/tarot/reading",
+          label: "Start a tarot reading",
+          description: "Interactive spreads with credit transparency",
+          highlight: true,
+        },
+        { href: "/learn/how-tarot-readings-work", label: "How tarot works", description: "Educational guide" },
+      ]}
+    />
   );
 }

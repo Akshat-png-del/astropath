@@ -41,3 +41,36 @@ export function pickCardsFromIndices(
     reversed: deck.reversed[i],
   }));
 }
+
+/** Indices still available to draw from the shuffled deck. */
+export function getAvailableDeckIndices(
+  deckSize: number,
+  drawnIndices: number[]
+): number[] {
+  const drawn = new Set(drawnIndices);
+  return Array.from({ length: deckSize }, (_, i) => i).filter((i) => !drawn.has(i));
+}
+
+/** Append one deck index in draw order; ignores duplicates and overflow. */
+export function drawDeckIndex(
+  drawnIndices: number[],
+  index: number,
+  maxCards: number,
+  deckSize: number
+): number[] {
+  if (index < 0 || index >= deckSize) return drawnIndices;
+  if (drawnIndices.includes(index)) return drawnIndices;
+  if (drawnIndices.length >= maxCards) return drawnIndices;
+  return [...drawnIndices, index];
+}
+
+/** Remove the most recently drawn card (undo). */
+export function undoLastDraw(drawnIndices: number[]): number[] {
+  if (drawnIndices.length === 0) return drawnIndices;
+  return drawnIndices.slice(0, -1);
+}
+
+export function isDrawComplete(drawnIndices: number[], expectedCount: number): boolean {
+  if (drawnIndices.length !== expectedCount) return false;
+  return new Set(drawnIndices).size === drawnIndices.length;
+}

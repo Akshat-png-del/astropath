@@ -5,19 +5,22 @@ import { Sparkles } from "lucide-react";
 import { useBilling } from "@/hooks/useBilling";
 import { useAuth } from "@/contexts/AuthContext";
 import { CREDIT_COSTS, FREE_TRIAL_CREDITS } from "@/lib/billing/plans";
+import { BTN_CHIP } from "@/lib/ui/button-classes";
 
 export function CreditsBadge() {
   const { user } = useAuth();
   const {
     credits,
-    unlimitedChat,
+    unlimitedTarot,
     tier,
     loading,
     anonymousCredits,
     isAnonymousTrial,
     usesFreeCredits,
+    creditsHydrated,
   } = useBilling();
 
+  if (!creditsHydrated) return null;
   if (!isAnonymousTrial && (!user || loading)) return null;
 
   const href = "/dashboard";
@@ -27,12 +30,11 @@ export function CreditsBadge() {
     return (
       <Link
         href={href}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-[11px] text-white/50 hover:text-white/70 hover:border-white/20 transition-colors"
+        title="Credits remaining"
+        className={BTN_CHIP}
       >
         <Sparkles className="w-3 h-3" />
-        <span>
-          {remaining}/{FREE_TRIAL_CREDITS} left
-        </span>
+        <span>{remaining} credits left</span>
       </Link>
     );
   }
@@ -40,14 +42,15 @@ export function CreditsBadge() {
   return (
     <Link
       href={href}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-[11px] text-white/50 hover:text-white/70 hover:border-white/20 transition-colors"
+      title="Credits and plan"
+      className={BTN_CHIP}
     >
       <Sparkles className="w-3 h-3" />
-      {unlimitedChat ? (
+      {unlimitedTarot ? (
         <span className="capitalize">{tier} · unlimited</span>
       ) : (
         <span>
-          {credits} credits · {CREDIT_COSTS.chatMessage}/msg
+          {credits} credits · tarot from {CREDIT_COSTS.tarotReading} cr
         </span>
       )}
     </Link>

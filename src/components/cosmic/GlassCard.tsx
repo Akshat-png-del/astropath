@@ -12,7 +12,7 @@ interface GlassCardProps {
 export function GlassCard({ children, className, hover = false, glow = false, padding = "md" }: GlassCardProps) {
   const pads = { sm: "p-4", md: "p-6", lg: "p-8" };
   return (
-    <div className={cn("glass-card rounded-2xl", pads[padding], hover && "glass-card-hover", glow && "shadow-[0_0_60px_rgba(255,255,255,0.03)]", className)}>
+    <div className={cn("glass-card rounded-2xl", pads[padding], hover && "glass-card-hover", glow && "shadow-[0_0_60px_rgba(196,196,204,0.04)]", className)}>
       {children}
     </div>
   );

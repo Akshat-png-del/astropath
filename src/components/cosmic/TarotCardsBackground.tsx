@@ -26,7 +26,7 @@ export function TarotCardsBackground() {
               y: [0, -1300],
               x: [0, Math.sin(i) * 50, Math.cos(i) * 35, 0],
               rotate: [i * 6 - 15, i * 6 + 12, i * 6 - 10],
-              opacity: [0, 0.2, 0.2, 0],
+              opacity: [0, 0.14, 0.14, 0],
             }}
             transition={{
               duration,
@@ -36,7 +36,7 @@ export function TarotCardsBackground() {
               times: [0, 0.08, 0.88, 1],
             }}
           >
-            <TarotCard face="back" size="xs" className="!w-14 sm:!w-16 opacity-90" />
+            <TarotCard face="back" size="xs" className="!w-14 sm:!w-16 opacity-75" />
           </motion.div>
         );
       })}

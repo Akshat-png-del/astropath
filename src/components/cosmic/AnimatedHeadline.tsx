@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { SYMBOL } from "@/lib/symbols";
 
 const HEADLINE_LINES = [
   { words: ["The", "universe", "reveals"], highlight: "universe" },
@@ -133,18 +134,18 @@ export function MovingTagline() {
       transition={{ delay: 1.2 }}
     >
       <motion.div
-        className="flex gap-8 sm:gap-12 whitespace-nowrap text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-white/15"
+        className="flex gap-8 sm:gap-12 whitespace-nowrap text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-silver-faint/80"
         animate={reducedMotion ? undefined : { x: ["0%", "-50%"] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
       >
         {[...Array(2)].map((_, ri) => (
           <span key={ri} className="flex gap-8 sm:gap-12 shrink-0">
-            <span>✦ Trust the cosmos</span>
-            <span>☽ Know yourself</span>
-            <span>✧ Discover your path</span>
-            <span>◎ The stars await</span>
-            <span>✦ Trust the cosmos</span>
-            <span>☽ Know yourself</span>
+            <span>{SYMBOL.star} Trust the cosmos</span>
+            <span>{SYMBOL.moon} Know yourself</span>
+            <span>{SYMBOL.starAlt} Discover your path</span>
+            <span>{SYMBOL.circle} The stars await</span>
+            <span>{SYMBOL.star} Trust the cosmos</span>
+            <span>{SYMBOL.moon} Know yourself</span>
           </span>
         ))}
       </motion.div>

@@ -1,14 +1,17 @@
-import { LandingNav } from "@/components/landing/Hero";
+import { PageShell } from "@/components/layout/PageShell";
 import { PricingSection } from "@/components/billing/PricingSection";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export default function PricingPage() {
   return (
-    <main className="min-h-dvh bg-[#050505] text-white relative overflow-x-hidden flex flex-col">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.04),transparent_60%)]" />
-      <LandingNav />
-      <PricingSection />
-      <SiteFooter className="mt-auto" />
-    </main>
+    <PageShell
+      width="lg"
+      breadcrumbs={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
+      eyebrow="Start free · upgrade when ready"
+      title="Plans & pricing"
+      subtitle="Free credits and daily tarot to start. Upgrade for unlimited readings and deeper chart insights."
+      stack={false}
+    >
+      <PricingSection embedded />
+    </PageShell>
   );
 }

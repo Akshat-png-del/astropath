@@ -7,6 +7,8 @@ import { ZodiacSignImage } from "@/components/cosmic/ZodiacSignImage";
 import { CelestialEmblem, CelestialPattern } from "@/components/zodiac/CelestialPattern";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BTN_ICON } from "@/lib/ui/button-classes";
 
 const WHEEL_DIM = 340;
 const WHEEL_RADIUS = WHEEL_DIM / 2 - 36;
@@ -67,13 +69,13 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
           />
         )}
 
-        <div className="absolute inset-0 rounded-full border border-white/[0.07] pointer-events-none" />
-        <div className="absolute inset-6 rounded-full border border-white/[0.04] pointer-events-none" />
-        <div className="absolute inset-12 rounded-full border border-dashed border-white/[0.05] pointer-events-none" />
+        <div className="absolute inset-0 rounded-full border border-silver/15 pointer-events-none" />
+        <div className="absolute inset-6 rounded-full border border-silver/10 pointer-events-none" />
+        <div className="absolute inset-12 rounded-full border border-dashed border-silver/10 pointer-events-none" />
 
         {mounted && (
           <motion.div
-            className="absolute inset-3 rounded-full border border-white/[0.05] pointer-events-none"
+            className="absolute inset-3 rounded-full border border-silver/10 pointer-events-none"
             animate={{ rotate: 360 }}
             transition={{ duration: 240, repeat: Infinity, ease: "linear" }}
           />
@@ -110,11 +112,11 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                   initial={false}
                   animate={{
                     scale: isHighlighted ? 1.12 : 1,
-                    backgroundColor: isHighlighted ? tokens.muted : "rgba(255,255,255,0.035)",
-                    borderColor: isHighlighted ? tokens.color : "rgba(255,255,255,0.08)",
+                    backgroundColor: isHighlighted ? tokens.muted : "rgba(196,196,204,0.035)",
+                    borderColor: isHighlighted ? tokens.color : "rgba(196,196,204,0.08)",
                     boxShadow: isHighlighted
                       ? `0 0 24px ${tokens.glow}, 0 0 0 1px ${tokens.muted}`
-                      : "0 0 0 rgba(255,255,255,0)",
+                      : "0 0 0 rgba(196,196,204,0)",
                   }}
                   whileHover={{ scale: isHighlighted ? 1.14 : 1.08 }}
                   whileTap={{ scale: 0.96 }}
@@ -133,7 +135,7 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                       animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
                       exit={{ opacity: 0, y: 2, scale: 0.96, filter: "blur(2px)" }}
                       transition={{ duration: 0.28, ease: fadeEase }}
-                      className="mt-2 px-2.5 py-0.5 rounded-full bg-black/60 border text-[9px] font-medium tracking-[0.16em] uppercase text-white/70 whitespace-nowrap pointer-events-none backdrop-blur-md"
+                      className="mt-2 px-2.5 py-0.5 rounded-full bg-black/60 border text-[9px] font-medium tracking-[0.16em] uppercase text-silver/80 whitespace-nowrap pointer-events-none backdrop-blur-md"
                       style={{ borderColor: tokens.muted }}
                     >
                       {sign}
@@ -145,7 +147,7 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
           })
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full border border-white/[0.06] animate-pulse" />
+            <div className="w-12 h-12 rounded-full border border-silver/10 animate-pulse" />
           </div>
         )}
 
@@ -167,7 +169,7 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                 >
                   <ZodiacSignImage sign={displaySign} size={48} interactive shimmer />
                 </motion.div>
-                <p className="text-[10px] text-white/35 mt-1 tracking-[0.25em] uppercase">
+                <p className="text-[10px] text-silver-muted/85 mt-1 tracking-[0.25em] uppercase">
                   {displaySign}
                 </p>
               </motion.div>
@@ -180,10 +182,10 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                 transition={{ duration: 0.35, ease: fadeEase }}
                 className="text-center"
               >
-                <div className="w-12 h-12 mx-auto rounded-full border border-white/[0.08] flex items-center justify-center bg-white/[0.03] shadow-[inset_0_0_20px_rgba(255,255,255,0.03)]">
+                <div className="w-12 h-12 mx-auto rounded-full border border-silver/15 flex items-center justify-center bg-silver/5 shadow-[inset_0_0_20px_rgba(196,196,204,0.03)]">
                   <CelestialEmblem size={28} />
                 </div>
-                <p className="text-[8px] text-white/18 mt-2 tracking-[0.42em] uppercase font-display">
+                <p className="text-[8px] text-silver-faint/80 mt-2 tracking-[0.42em] uppercase font-display">
                   Celestial Wheel
                 </p>
               </motion.div>
@@ -215,10 +217,10 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                 style={{ borderColor: getElementTokens(activeSign).muted }}
               >
                 <CelestialPattern className="opacity-35" seed={activeSign} />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-silver/10 to-transparent pointer-events-none" />
                 <button
                   onClick={() => setActiveSign(null)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/[0.1] transition-all duration-300 z-10"
+                  className={cn(BTN_ICON, "absolute top-4 right-4 w-8 h-8 z-10")}
                   aria-label="Close"
                 >
                   <X className="w-4 h-4" />
@@ -238,8 +240,8 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                   >
                     <ZodiacSignImage sign={activeSign} size={72} interactive shimmer />
                   </motion.div>
-                  <h3 className="font-display text-2xl text-white/90">{activeSign}</h3>
-                  <p className="text-xs text-white/35 tracking-[0.2em] uppercase mt-1">
+                  <h3 className="font-display text-2xl text-silver-bright/90">{activeSign}</h3>
+                  <p className="text-xs text-silver-muted/85 tracking-[0.2em] uppercase mt-1">
                     {traits.archetype} · {traits.element} · {traits.modality}
                   </p>
                 </motion.div>
@@ -254,25 +256,25 @@ export function ZodiacWheel({ onSelect, selected }: ZodiacWheelProps) {
                     {traits.keywords.map((kw) => (
                       <span
                         key={kw}
-                        className="px-2.5 py-1 rounded-full text-[10px] bg-white/[0.05] border border-white/[0.08] text-white/45 tracking-wide"
+                        className="px-2.5 py-1 rounded-full text-[10px] bg-silver/5 border border-silver/15 text-silver-muted tracking-wide"
                       >
                         {kw}
                       </span>
                     ))}
                   </div>
 
-                  <p className="text-sm text-white/45 leading-relaxed text-center mb-4">
+                  <p className="text-sm text-silver-muted leading-relaxed text-center mb-4">
                     {traits.emotional}
                   </p>
 
                   <div className="grid grid-cols-2 gap-2 text-center">
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
-                      <p className="text-[9px] text-white/25 uppercase tracking-wider mb-1">Strength</p>
-                      <p className="text-xs text-white/50">{traits.strengths[0]}</p>
+                    <div className="p-3 rounded-xl bg-silver/5 border border-silver/10">
+                      <p className="text-[9px] text-silver-faint uppercase tracking-wider mb-1">Strength</p>
+                      <p className="text-xs text-silver-dim/80">{traits.strengths[0]}</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
-                      <p className="text-[9px] text-white/25 uppercase tracking-wider mb-1">Growth Edge</p>
-                      <p className="text-xs text-white/50">{traits.challenges[0]}</p>
+                    <div className="p-3 rounded-xl bg-silver/5 border border-silver/10">
+                      <p className="text-[9px] text-silver-faint uppercase tracking-wider mb-1">Growth Edge</p>
+                      <p className="text-xs text-silver-dim/80">{traits.challenges[0]}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -305,7 +307,7 @@ export function FloatingConstellations() {
       style={{ zIndex: -15 }}
       aria-hidden="true"
     >
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04]">
+      <svg className="absolute inset-0 w-full h-full opacity-[0.03]">
         <line x1="12%" y1="18%" x2="28%" y2="42%" stroke="#f5f0e6" strokeWidth="0.5" />
         <line x1="28%" y1="42%" x2="45%" y2="22%" stroke="#f5f0e6" strokeWidth="0.5" />
         <line x1="45%" y1="22%" x2="62%" y2="55%" stroke="#f5f0e6" strokeWidth="0.5" />
@@ -315,8 +317,8 @@ export function FloatingConstellations() {
         <motion.span
           key={i}
           className="absolute w-1 h-1 rounded-full bg-[#f5f0e6]"
-          style={{ left: n.x, top: n.y, opacity: 0.12 }}
-          animate={{ y: [0, -18, 0], opacity: [0.06, 0.18, 0.06] }}
+          style={{ left: n.x, top: n.y, opacity: 0.1 }}
+          animate={{ y: [0, -18, 0], opacity: [0.05, 0.14, 0.05] }}
           transition={{ duration: 10 + n.delay * 2, repeat: Infinity, ease: "easeInOut", delay: n.delay }}
         />
       ))}

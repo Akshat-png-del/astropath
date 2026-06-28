@@ -5,6 +5,7 @@ export const CREDIT_COSTS = {
   detailedReport: 5,
   tarotReading: 2,
   monthlyForecast: 3,
+  compatibilityReading: 4,
 } as const;
 
 /** Free trial / Free tier monthly allocation — anonymous & signed-in */

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sparkles, MessageCircle, ArrowRight } from "lucide-react";
+import { Sparkles, Layers, ArrowRight } from "lucide-react";
 import { GlassCard } from "@/components/cosmic/GlassCard";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,7 +33,7 @@ function formatTime(iso: string): string {
 function activityLabel(type: CreditHistoryEntry["type"]): string {
   switch (type) {
     case "chat":
-      return "Chat message";
+      return "Legacy activity";
     case "tarot":
       return "Tarot reading";
     case "report":
@@ -53,7 +53,7 @@ export function CreditsPanel() {
   useEffect(() => {
     const load = () => {
       repairCreditLedger();
-      setHistory(getCreditHistory());
+      setHistory(getCreditHistory().filter((entry) => entry.type !== "chat"));
     };
     load();
     window.addEventListener(CREDITS_UPDATED_EVENT, load);
@@ -66,7 +66,7 @@ export function CreditsPanel() {
 
   const isAnonymous = !user;
   const isFreePlan = isAnonymous || billing.tier === "free";
-  const unlimited = !!user && billing.unlimitedChat;
+  const unlimited = !!user && billing.unlimitedTarot;
   const usesLocalLedger = billing.usesFreeCredits || isAnonymous;
   const remaining = usesLocalLedger ? billing.anonymousCredits : billing.credits;
   const planLimit = isFreePlan && !unlimited ? FREE_TRIAL_CREDITS : null;
@@ -77,30 +77,30 @@ export function CreditsPanel() {
     <GlassCard glow className="mb-8">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-2">
+          <p className="text-[10px] tracking-[0.3em] uppercase text-silver-faint mb-2">
             {isFreePlan ? "Free trial credits" : "Your credits"}
           </p>
-          <h2 className="font-display text-2xl sm:text-3xl text-white/85 mb-1">
+          <h2 className="font-display text-2xl sm:text-3xl text-silver-bright/85 mb-1">
             {unlimited ? (
               "Unlimited credits"
             ) : (
               <>
                 <span className="text-gradient">{remaining}</span>
-                <span className="text-white/35 text-lg sm:text-xl"> credits remaining</span>
+                <span className="text-silver-muted/85 text-lg sm:text-xl"> credits remaining</span>
               </>
             )}
           </h2>
-          <p className="text-sm text-white/35">
+          <p className="text-sm text-silver-muted/85">
             {unlimited
-              ? `${PAID_PLANS_LABEL} plans include unlimited chat and tarot.`
+              ? `${PAID_PLANS_LABEL} plans include unlimited tarot and premium features.`
               : planLimit != null
-                ? `${CREDIT_COSTS.chatMessage} credit per message · ${planLimit} credits included on Free plan`
-                : `${CREDIT_COSTS.chatMessage} credit per message`}
+                ? `Tarot spreads from ${CREDIT_COSTS.tarotReading} credits · ${planLimit} credits on Free plan`
+                : `Tarot spreads from ${CREDIT_COSTS.tarotReading} credits`}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 shrink-0">
-          <CosmicButton size="sm" href="/chat">
-            <MessageCircle className="w-3.5 h-3.5" /> Chat
+          <CosmicButton size="sm" href="/tarot/reading">
+            <Layers className="w-3.5 h-3.5" /> Tarot reading
           </CosmicButton>
           {isAnonymous && (
             <CosmicButton variant="secondary" size="sm" href="/auth">
@@ -117,15 +117,15 @@ export function CreditsPanel() {
 
       {!unlimited && planLimit != null && (
         <div className="mb-6">
-          <div className="flex justify-between text-[10px] text-white/25 uppercase tracking-wider mb-2">
+          <div className="flex justify-between text-[10px] text-silver-faint uppercase tracking-wider mb-2">
             <span>{planLimit} free credits</span>
             <span>
               {used} used · {remaining} left
             </span>
           </div>
-          <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+          <div className="h-2 rounded-full bg-silver/10 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-white/40 to-white/70 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-silver/40 to-silver/70 transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -134,30 +134,30 @@ export function CreditsPanel() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs text-white/40 uppercase tracking-wider">Usage history</h3>
-          <Sparkles className="w-3.5 h-3.5 text-white/20" />
+          <h3 className="text-xs text-silver-muted/90 uppercase tracking-wider">Usage history</h3>
+          <Sparkles className="w-3.5 h-3.5 text-silver-faint/90" />
         </div>
 
         {history.length === 0 ? (
-          <p className="text-sm text-white/25 py-6 text-center border border-dashed border-white/[0.06] rounded-xl">
-            No messages yet. Start a chat — each message uses {CREDIT_COSTS.chatMessage} credit.
+          <p className="text-sm text-silver-faint py-6 text-center border border-dashed border-silver/10 rounded-xl">
+            No activity yet. Start with a free tarot reading — costs are shown before you draw.
           </p>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
             {history.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]"
+                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-xl bg-silver/5 border border-silver/10"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] text-white/25 uppercase tracking-wider mb-0.5">
+                  <p className="text-[10px] text-silver-faint uppercase tracking-wider mb-0.5">
                     {activityLabel(entry.type)} · {formatTime(entry.timestamp)}
                   </p>
-                  <p className="text-sm text-white/55 truncate">&ldquo;{entry.message}&rdquo;</p>
+                  <p className="text-sm text-silver-dim/85 truncate">&ldquo;{entry.message}&rdquo;</p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0 text-xs">
-                  <span className="text-white/30">−{entry.creditsUsed} cr</span>
-                  <span className="text-white/50">{entry.creditsRemaining} left</span>
+                  <span className="text-silver-muted/80">−{entry.creditsUsed} cr</span>
+                  <span className="text-silver-dim/80">{entry.creditsRemaining} left</span>
                 </div>
               </li>
             ))}
@@ -166,15 +166,15 @@ export function CreditsPanel() {
       </div>
 
       {isFreePlan && !unlimited && remaining === 0 && (
-        <div className="mt-5 pt-5 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p className="text-sm text-white/40">
+        <div className="mt-5 pt-5 border-t border-silver/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-silver-muted/90">
             {isAnonymous
               ? "Trial credits used up. Sign in for a fresh monthly allowance."
               : "Free credits used up. Upgrade for unlimited access."}
           </p>
           <Link
             href={isAnonymous ? "/auth" : "/pricing"}
-            className="inline-flex items-center gap-1 text-sm text-white/60 hover:text-white/80"
+            className="inline-flex items-center gap-1 text-sm text-silver-dim/90 hover:text-silver/90"
           >
             {isAnonymous ? "Create free account" : "View plans"}
             <ArrowRight className="w-3.5 h-3.5" />

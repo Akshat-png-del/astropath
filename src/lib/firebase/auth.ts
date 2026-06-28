@@ -32,7 +32,7 @@ export function formatAuthError(err: unknown): string {
   }
   if (err instanceof Error && err.message) {
     if (err.message.includes("Firebase is not configured")) {
-      return "Sign-in is not set up yet. You can still use the chat without an account.";
+      return "Sign-in is not set up yet. You can still explore tarot without an account.";
     }
     return err.message;
   }

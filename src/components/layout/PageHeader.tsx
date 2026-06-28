@@ -3,6 +3,8 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BTN_ICON } from "@/lib/ui/button-classes";
 
 interface PageHeaderProps {
   backHref?: string;
@@ -24,26 +26,26 @@ export function PageHeader({
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="shrink-0 border-b border-white/[0.04] bg-[#050505]/80 backdrop-blur-2xl safe-top">
+    <header className="shrink-0 border-b border-silver/10 bg-background/94 backdrop-blur-2xl safe-top">
       <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <Link
             href={backHref}
-            className="shrink-0 text-white/30 hover:text-white/60 transition-colors p-1"
+            className="shrink-0 text-silver-muted/80 hover:text-silver-dim/90 transition-colors p-1"
             aria-label="Go back"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             {icon && (
-              <div className="w-8 h-8 shrink-0 rounded-full border border-white/10 flex items-center justify-center text-white/50 text-sm">
+              <div className="w-8 h-8 shrink-0 rounded-full border border-silver/20 flex items-center justify-center text-silver-dim/80 text-sm">
                 {icon}
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="font-display text-sm sm:text-base text-white/70 truncate">{title}</h1>
+              <h1 className="font-display text-sm sm:text-base text-silver/80 truncate">{title}</h1>
               {subtitle && (
-                <p className="text-[10px] text-white/25 tracking-wider uppercase truncate">{subtitle}</p>
+                <p className="text-[10px] text-silver-faint tracking-wider uppercase truncate">{subtitle}</p>
               )}
             </div>
           </div>
@@ -56,7 +58,7 @@ export function PageHeader({
         {(actions || mobileActions) && (
           <button
             type="button"
-            className="sm:hidden shrink-0 w-9 h-9 rounded-full border border-white/[0.08] flex items-center justify-center text-white/50"
+            className={cn(BTN_ICON, "hidden max-sm:inline-flex w-9 h-9")}
             aria-label={menuOpen ? "Close actions" : "Open actions"}
             onClick={() => setMenuOpen((v) => !v)}
           >

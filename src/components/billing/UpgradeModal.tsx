@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CosmicButton } from "@/components/cosmic/CosmicButton";
 import { CREDIT_COSTS, FREE_MONTHLY_CREDITS, FREE_TRIAL_CREDITS } from "@/lib/billing/plans";
 import { PAID_PLANS_LABEL, STELLAR_PLAN_NAME } from "@/lib/brand";
+import { BTN_TEXT } from "@/lib/ui/button-classes";
 
 export type UpgradeReason =
   | "credits"
@@ -22,24 +23,24 @@ interface UpgradeModalProps {
 
 const COPY: Record<UpgradeReason, { title: string; body: string }> = {
   credits: {
-    title: "You're out of credits",
-    body: `Each chat message uses ${CREDIT_COSTS.chatMessage} credit. Free trial includes ${FREE_TRIAL_CREDITS} credits without sign-in. Signed-in Free accounts get ${FREE_MONTHLY_CREDITS} credits monthly.`,
+    title: "You're out of credits for now",
+    body: `Credits power tarot and reports. Your free starter balance is ${FREE_TRIAL_CREDITS} credits — return tomorrow for a free daily reading, explore our guides at no cost, or upgrade for unlimited exploration.`,
   },
   report: {
-    title: "Unlock your detailed report",
-    body: `Full birth chart reports use ${CREDIT_COSTS.detailedReport} credits, or are included with ${PAID_PLANS_LABEL} plans.`,
+    title: "Unlock your birth chart analysis",
+    body: `Full birth chart reports use ${CREDIT_COSTS.detailedReport} credits. ${PAID_PLANS_LABEL} plans include unlimited reports and extended interpretations.`,
   },
   signin: {
-    title: "Sign in to continue",
-    body: `Create a free account for ${FREE_MONTHLY_CREDITS} monthly credits, 1 free tarot/month, saved chart, and cloud history on paid plans.`,
+    title: "Sign in to continue exploring",
+    body: `Create a free account for ${FREE_MONTHLY_CREDITS} monthly credits, 1 free tarot per month, a free daily card, saved progress, and optional unlimited access on paid plans.`,
   },
   history: {
     title: `Cloud history is a ${STELLAR_PLAN_NAME} feature`,
-    body: "Upgrade to sync readings across all your devices.",
+    body: "Upgrade for unlimited tarot, saved reading history across devices, and priority access.",
   },
   tarot: {
-    title: "More tarot readings",
-    body: `Free plan includes 1 tarot trial per month, then ${CREDIT_COSTS.tarotReading} credits each. ${PAID_PLANS_LABEL} include unlimited tarot.`,
+    title: "Continue your tarot journey",
+    body: `Free accounts get a daily card, one monthly complimentary reading, and transparent per-spread costs. ${PAID_PLANS_LABEL} unlock unlimited readings and deeper spreads.`,
   },
   forecast: {
     title: "Unlock monthly forecast",
@@ -47,7 +48,7 @@ const COPY: Record<UpgradeReason, { title: string; body: string }> = {
   },
   compatibility: {
     title: "Unlock compatibility deep-dive",
-    body: `Full zodiac compatibility analysis is included with ${PAID_PLANS_LABEL} plans.`,
+    body: `Full zodiac compatibility analysis uses ${CREDIT_COSTS.compatibilityReading} credits, or is included with ${PAID_PLANS_LABEL} plans.`,
   },
 };
 
@@ -59,27 +60,36 @@ export function UpgradeModal({ open, onClose, reason = "credits" }: UpgradeModal
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative glass-card rounded-3xl p-8 max-w-sm w-full text-center">
-        <h3 className="font-display text-xl text-white/85 mb-2">{title}</h3>
-        <p className="text-sm text-white/40 leading-relaxed mb-6">{body}</p>
+        <h3 className="font-display text-xl text-silver-bright/85 mb-2">{title}</h3>
+        <p className="text-sm text-silver-muted/90 leading-relaxed mb-6">{body}</p>
         <div className="flex flex-col gap-2">
           {reason === "signin" ? (
             <CosmicButton href="/auth" className="w-full">Sign in free</CosmicButton>
+          ) : reason === "credits" ? (
+            <>
+              <CosmicButton href="/guides" variant="secondary" className="w-full">
+                Explore free guides
+              </CosmicButton>
+              <CosmicButton href="/pricing" className="w-full">
+                Unlimited exploration
+              </CosmicButton>
+            </>
           ) : (
             <CosmicButton href="/pricing" className="w-full">View plans</CosmicButton>
           )}
           {reason !== "signin" && (
             <Link
               href="/auth"
-              className="text-xs text-white/30 hover:text-white/50 py-2"
+              className="text-xs text-silver-muted/80 hover:text-silver-dim/80 py-2"
               onClick={onClose}
             >
-              Sign in for free trials
+              Sign in for free daily readings
             </Link>
           )}
           <button
             type="button"
             onClick={onClose}
-            className="text-xs text-white/25 hover:text-white/40 py-1"
+            className={BTN_TEXT}
           >
             Not now
           </button>
